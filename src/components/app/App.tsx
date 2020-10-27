@@ -1,13 +1,21 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './App.css';
 import { BrowserRouter } from 'react-router-dom';
 import { Button, Flex, Debug } from '@fluentui/react-northstar'
 import { IconContext } from 'react-icons'
+import { ws, client, room, makeConnection, localConnection } from '../../utils/sockets/socket';
 
 
 function App() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const incomingVidRef = useRef<HTMLVideoElement>(null);
+  const [streamOut, setStream] = useState<MediaStream>()
+  const [inCall, setInCall] = useState(false)
+
+  const signalConnect = () => {
+    setInCall(true)
+    makeConnection()
+  }
 
   const pipeErr = (err: Error) => { throw err }
 
@@ -16,7 +24,10 @@ function App() {
       .then((stream) => {
         if (videoRef?.current) {
           videoRef.current.srcObject = stream
-          makeVideoCall(stream)
+          localConnection.ontrack = gotRemoteStream;
+          stream.getTracks().forEach(track => localConnection.addTrack(track, stream));
+          setStream(stream)
+          // makeVideoCall(stream)
         }
       }).catch((err) => console.error(`Error getting media device`, err));
   }, [videoRef])
@@ -37,18 +48,19 @@ function App() {
     const localConnection = new RTCPeerConnection();
     const remoteConnection = new RTCPeerConnection();
 
+    // Add Ice Candidate when created
     localConnection.onicecandidate = (iceEvent) => {
       // console.log('LocalConnection : Adding Candidate', iceEvent.candidate)
       if (iceEvent.candidate) remoteConnection.addIceCandidate(iceEvent.candidate)
     }
-    localConnection.oniceconnectionstatechange = (stateChangeEvent) => console.log('localConnection state Change ', stateChangeEvent)
+    // localConnection.oniceconnectionstatechange = (stateChangeEvent) => console.log('localConnection state Change ', stateChangeEvent)
 
-
+    // Add Ice Candidate when created
     remoteConnection.onicecandidate = (iceEvent) => {
       // console.log('RemoteConnection : Adding Candidate', iceEvent.candidate)
       if (iceEvent.candidate) localConnection.addIceCandidate(iceEvent.candidate)
     }
-    remoteConnection.oniceconnectionstatechange = (stateChangeEvent) => console.log('remote state Change', stateChangeEvent)
+    // remoteConnection.oniceconnectionstatechange = (stateChangeEvent) => console.log('remote state Change', stateChangeEvent)
 
     remoteConnection.addEventListener('track', gotRemoteStream);
 
@@ -81,10 +93,11 @@ function App() {
   return (
     <BrowserRouter>
       <IconContext.Provider value={{ size: '1.25rem' }}>
-        <Flex >
+        <Flex column>
           {/* <p>Hi</p> */}
-          <video ref={videoRef} onCanPlay={canPlay} id="player" autoPlay playsInline />
+          <video ref={videoRef} onCanPlay={canPlay} id="player" autoPlay playsInline muted />
           <video ref={incomingVidRef} playsInline autoPlay ></video>
+          <Button content="Connect to websocket" primary onClick={() => signalConnect()} disabled={inCall} />
           {/* <Nav></Nav> */}
           {/* <Router /> */}
           <Debug />
