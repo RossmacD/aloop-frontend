@@ -18,6 +18,7 @@ import { LOGIN_PATH, REGISTER_PATH, PASS_RESET_PATH } from "./Paths";
 import CenteredPage from "../pages/templates/CenteredPage";
 import { VideoCall } from "../components/video/VideoCall";
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default () => {
   // const [{ data: loginData }] = useGetOwnEmailQuery();
 

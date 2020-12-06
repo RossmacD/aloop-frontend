@@ -11,10 +11,17 @@ export const VideoCall: React.FC<Props> = ({ children }) => {
     const incomingVidRef = useRef<HTMLVideoElement>(null);
     // const [streamOut, setStream] = useState<MediaStream>()
     const [inCall, setInCall] = useState(false)
+    const [callMessage, setCallMessage] = useState<string>("")
 
     const signalConnect = () => {
         setInCall(true)
-        makeConnection()
+        if (makeConnection()) {
+
+        } else {
+            setInCall(false)
+            console.log("Could not connect")
+            setCallMessage("Could not connect")
+        }
     }
 
     const pipeErr = (err: Error) => { throw err }
@@ -94,14 +101,17 @@ export const VideoCall: React.FC<Props> = ({ children }) => {
     return (
         <div>
             <div style={{ position: "relative" }}>
-                <video ref={videoRef} onCanPlay={canPlay} id="player" autoPlay playsInline muted />
+                <video ref={videoRef} onCanPlay={canPlay} id="player" autoPlay playsInline muted width="426" height="240" />
                 <p style={{ position: "absolute", color: 'white', top: 10, left: 10 }}>Your Name: {client}</p>
             </div>
-            <div style={{ position: "relative" }}>
-                <video ref={incomingVidRef} playsInline autoPlay ></video>
-                <p style={{ position: "absolute", color: 'white', top: 10, left: 10 }}>Caller Name: {'caller'}</p>
-            </div>
-            <Button content="Connect to websocket" primary onClick={() => signalConnect()} disabled={inCall} />
+            {inCall ? (
+                <div style={{ position: "relative" }}>
+                    <video ref={incomingVidRef} playsInline autoPlay width="426" height="240"></video>
+                    <p style={{ position: "absolute", color: 'white', top: 10, left: 10 }}>Caller Name: {'caller'}</p>
+                </div>) : ''
+            }
+            <p>{callMessage}</p>
+            <Button content="Join Room" primary onClick={() => signalConnect()} disabled={inCall} />
         </div>
     )
 }

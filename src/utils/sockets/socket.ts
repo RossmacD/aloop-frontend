@@ -103,16 +103,21 @@ const sendOneToOneNegotiation = (
   }
 };
 
-export const makeConnection = () => {
-  console.log('Connected -> sending negotiations');
-  ws.send(
-    JSON.stringify({
-      protocol: 'one-to-all',
-      room,
-      from: client,
-      endpoint: 'any',
-      action: 'HANDLE_CONNECTION',
-      data: client,
-    })
-  );
+export const makeConnection: () => boolean = () => {
+  console.log('Connected -> sending negotiations', ws);
+  if (!!ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(
+      JSON.stringify({
+        protocol: 'one-to-all',
+        room,
+        from: client,
+        endpoint: 'any',
+        action: 'HANDLE_CONNECTION',
+        data: client,
+      })
+    );
+    return true;
+  } else {
+    return false;
+  }
 };
