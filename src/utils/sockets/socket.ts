@@ -1,18 +1,16 @@
-// import App from '../../components/app/App';
-
-export const wsAddr = '172.20.80.193:8080';
+export const wsAddr = '172.20.80.193:8000';
 export const client = 'user' + Math.random();
 export const room = 'this_room';
-export const ws = new WebSocket(`ws://${wsAddr}?user=${client}`);
+// const options = {
+//   rejectUnauthorized: false,
+// };
+export const ws = new WebSocket(`wss://${wsAddr}/signalling/?user=${client}`);
 export const localConnection = new RTCPeerConnection();
-
+// export const [callerId, setCallerId] = useState('');
 // localConnection.ontrack = ;
 
 ws.onopen = (e) => {
-  //
-  //   remoteConnection.addEventListener('track', gotRemoteStream);
-  //     stream.getTracks().forEach(track => localConnection.addTrack(track, stream));
-  //     console.log('Added stream to local');
+  console.log('Websocket Connection');
 };
 
 ws.onmessage = async (e) => {
@@ -33,6 +31,9 @@ ws.onmessage = async (e) => {
         break;
       case 'answer':
         console.log('--- GOT ANSWER IN CONNECT ---');
+        // callerId=
+        // setCallerId(json.from);
+        // console.log('HJAHSDHASHDHASDHASDHASDHASDASDHASDasdasdasd', json.from);
         localConnection.setRemoteDescription(new RTCSessionDescription(json.data));
         break;
     }
@@ -72,6 +73,7 @@ function processOffer(requester: any, remoteOffer: any) {
   };
 
   // SEND ANSWER
+  //   setCallerId(json.from);
   localConnection.setRemoteDescription(new RTCSessionDescription(remoteOffer));
   localConnection.createAnswer().then((localDescription) => {
     localConnection.setLocalDescription(localDescription);
@@ -90,7 +92,7 @@ const sendOneToOneNegotiation = (
   if (ws) {
     ws.send(
       JSON.stringify({
-        protocol: 'one-to-one',
+        protocol: 'one-to-all',
         from: client,
         room: room,
         endpoint: endpoint,
