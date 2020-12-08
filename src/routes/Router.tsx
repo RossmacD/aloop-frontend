@@ -4,19 +4,12 @@ import {
   Switch,
   Route,
   Link,
-  Redirect
 } from "react-router-dom";
-// import Temp from "../components/temp/Temp";
-// import LoginForm from "../components/forms/Auth/loginForm/LoginForm";
-
-// import LoginPage from "../pages/Auth/LoginPage";
-import ErrorPage from "../pages/templates/ErrorPage";
 import RegisterPage from "../pages/Auth/RegisterPage";
-// import PasswordResetPage from "../pages/Auth/PassResetPage";
-// import ForgotPasswordPage from "../pages/Auth/ForgotPasswordPage";
-import { LOGIN_PATH, REGISTER_PATH, PASS_RESET_PATH } from "./Paths";
+import { LOGIN_PATH, REGISTER_PATH } from "./Paths";
 import CenteredPage from "../pages/templates/CenteredPage";
 import { VideoCall } from "../components/video/VideoCall";
+import LoginPage from "../pages/Auth/LoginPage";
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default () => {
@@ -30,10 +23,14 @@ export default () => {
       <Route exact path="/">
         <CenteredPage>
           {/* {onlyLoggedIn(<Temp />, <h1>Welcome to Greenstar Aviation</h1>)} */}
+          <Link to={LOGIN_PATH}>Login</Link>
+          <Link to={REGISTER_PATH}>Register</Link>
+          <Link to='/video'>Video</Link>
         </CenteredPage>
       </Route>
       <Route path={LOGIN_PATH}>
         {/* {onlyLoggedOut(<LoginPage />)} */}
+        <LoginPage />
       </Route>
       <Route path={REGISTER_PATH}>
         <RegisterPage />
@@ -50,7 +47,7 @@ export default () => {
         {onlyLoggedOut(<PasswordResetPage />)}
       </Route> */}
       <Route path="*">
-        <ErrorPage error={{ number: 404, message: "Page not found" }}></ErrorPage>
+        {/* <ErrorPage error={{ number: 404, message: "Page not found" }}></ErrorPage> */}
       </Route>
     </Switch>
   )
