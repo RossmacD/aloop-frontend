@@ -8,9 +8,9 @@ export const BASE_SOCKET_URL = `ws${process.env.HTTPS ? 's' : ''}://${
 
 export const DEFAULT_FETCH_HEADERS = {
   'Access-Control-Allow-Credentials': 'true',
-  'Access-Control-Allow-Origin': 'http://localhost:3000',
+  'Access-Control-Allow-Origin': `http://${process.env.REACT_APP_API_DOMAIN}:3000`,
   Vary: 'origin',
-  'Content-Type': 'application / json',
+  'Content-Type': 'application/json',
 };
 
 export const SESSION_SECRET =
