@@ -1,10 +1,12 @@
-export const wsAddr = '172.20.80.193:8000';
+import { BASE_SOCKET_URL, BASE_URL } from '../../config';
+
+export const wsAddr = BASE_URL;
 export const client = 'user' + Math.random();
 export const room = 'this_room';
 // const options = {
 //   rejectUnauthorized: false,
 // };
-export const ws = new WebSocket(`wss://${wsAddr}/signalling/?user=${client}`);
+export const ws = new WebSocket(`${BASE_SOCKET_URL}/signalling/?user=${client}`);
 export const localConnection = new RTCPeerConnection();
 // export const [callerId, setCallerId] = useState('');
 // localConnection.ontrack = ;

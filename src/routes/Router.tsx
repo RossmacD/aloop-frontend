@@ -3,13 +3,14 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link,
 } from "react-router-dom";
 import RegisterPage from "../pages/Auth/RegisterPage";
 import { LOGIN_PATH, REGISTER_PATH } from "./Paths";
 import CenteredPage from "../pages/templates/CenteredPage";
 import { VideoCall } from "../components/video/VideoCall";
 import LoginPage from "../pages/Auth/LoginPage";
+import { HomePage } from "../pages/HomePage";
+import ProfilePage from "../pages/Auth/ProfilePage";
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default () => {
@@ -18,15 +19,12 @@ export default () => {
   // const onlyLoggedIn = (page: ReactElement, alt: ReactElement = <Redirect to="/login" />) => loginData?.getSelf?.email ? page : alt
   // const onlyLoggedOut = (page: ReactElement, alt: ReactElement = <Redirect to="/" />) => !loginData?.getSelf?.email ? page : alt
 
+  // const self = useGetSelfQuery();
+
   return (
     <Switch>
       <Route exact path="/">
-        <CenteredPage>
-          {/* {onlyLoggedIn(<Temp />, <h1>Welcome to Greenstar Aviation</h1>)} */}
-          <Link to={LOGIN_PATH}>Login</Link>
-          <Link to={REGISTER_PATH}>Register</Link>
-          <Link to='/video'>Video</Link>
-        </CenteredPage>
+        <HomePage />
       </Route>
       <Route path={LOGIN_PATH}>
         {/* {onlyLoggedOut(<LoginPage />)} */}
@@ -39,6 +37,9 @@ export default () => {
         <CenteredPage>
           <VideoCall />
         </CenteredPage>
+      </Route>
+      <Route path={"/profile"}>
+        <ProfilePage />
       </Route>
       {/* <Route path={PASS_RESET_PATH}>
         {onlyLoggedOut(<ForgotPasswordPage />)}

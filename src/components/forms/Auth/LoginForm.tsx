@@ -2,7 +2,7 @@
 
 
 import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { SubmitHandler, useForm } from 'react-hook-form'
 import { useLoginQuery } from '../../../api/authQueries'
 import { MakeForm } from '../../../utils/forms/MakeForm'
 import { emailValidation } from '../../../utils/validators/emailValidation'
@@ -26,7 +26,7 @@ export const LoginForm: React.FC<Props> = ({ children }) => {
 
     const [success, setSuccess] = useState(false)
 
-    const attemptLogin = (data: any) => {
+    const attemptLogin: SubmitHandler<any> = (data) => {
         // Get email and password from data
         const { email, password } = data;
         //Try to login

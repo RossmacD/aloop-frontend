@@ -104,12 +104,13 @@ export const VideoCall: React.FC<Props> = ({ children }) => {
                 <video ref={videoRef} onCanPlay={canPlay} id="player" autoPlay playsInline muted width="426" height="240" />
                 <p style={{ position: "absolute", color: 'white', top: 10, left: 10 }}>Your Name: {client}</p>
             </div>
-            {inCall ? (
-                <div style={{ position: "relative" }}>
-                    <video ref={incomingVidRef} playsInline autoPlay width="426" height="240"></video>
-                    <p style={{ position: "absolute", color: 'white', top: 10, left: 10 }}>Caller Name: {'caller'}</p>
-                </div>) : ''
-            }
+            {/* {inCall ? ( */}
+            <div style={{ position: "relative" }}>
+                <video ref={incomingVidRef} playsInline autoPlay width="426" height="240"></video>
+                <p style={{ position: "absolute", color: 'white', top: 10, left: 10 }}>Caller Name: {'caller'}</p>
+            </div>
+            {/* ) : ''
+             } */}
             <p>{callMessage}</p>
             <Button content="Join Room" primary onClick={() => signalConnect()} disabled={inCall} />
         </div>
