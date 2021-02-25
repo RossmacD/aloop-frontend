@@ -1,7 +1,8 @@
 import { BASE_SOCKET_URL, BASE_URL } from '../../config';
 
 export const wsAddr = BASE_URL;
-export const client = 'user' + Math.random();
+// export const client = 'user' + Math.random();
+export const client = 1;
 export const room = 'this_room';
 // const options = {
 //   rejectUnauthorized: false,
@@ -37,6 +38,12 @@ ws.onmessage = async (e) => {
         // setCallerId(json.from);
         // console.log('HJAHSDHASHDHASDHASDHASDHASDASDHASDasdasdasd', json.from);
         localConnection.setRemoteDescription(new RTCSessionDescription(json.data));
+        break;
+    }
+
+    switch (json.protocol) {
+      case 'GET_ONLINE_USERS':
+        //DO SOMETHING
         break;
     }
   }

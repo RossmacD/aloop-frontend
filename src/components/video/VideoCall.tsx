@@ -27,7 +27,7 @@ export const VideoCall: React.FC<Props> = ({ children }) => {
     const pipeErr = (err: Error) => { throw err }
 
     useEffect(() => {
-        navigator.mediaDevices.getUserMedia({ audio: false, video: true })
+        if (!navigator.mediaDevices?.getUserMedia({ audio: false, video: true })
             .then((stream) => {
                 if (videoRef?.current) {
                     videoRef.current.srcObject = stream
@@ -36,7 +36,10 @@ export const VideoCall: React.FC<Props> = ({ children }) => {
                     // setStream(stream)
                     // makeVideoCall(stream)
                 }
-            }).catch((err) => console.error(`Error getting media device`, err));
+            }).catch((err) => console.error(`Error getting media device`, err))) {
+            // There are no media devices
+            setCallMessage("No media devices found, is your camera / microphone connected?")
+        };
     }, [videoRef])
 
     const canPlay = () => {

@@ -1,15 +1,15 @@
 export const BASE_URL = `http${process.env.HTTPS ? 's' : ''}://${process.env.REACT_APP_API_DOMAIN}${
   process.env.REACT_APP_API_PORT !== '80' ? ':' + process.env.REACT_APP_API_PORT : ''
-}`;
+}/api`;
 
 export const BASE_SOCKET_URL = `ws${process.env.HTTPS ? 's' : ''}://${
   process.env.REACT_APP_API_DOMAIN
-}${process.env.REACT_APP_API_PORT !== '80' ? ':' + process.env.REACT_APP_API_PORT : ''}`;
+}${process.env.REACT_APP_API_PORT !== '80' ? ':' + process.env.REACT_APP_API_PORT : ''}/api`;
 
 export const DEFAULT_FETCH_HEADERS = {
   'Access-Control-Allow-Credentials': 'true',
-  'Access-Control-Allow-Origin': `http://${process.env.REACT_APP_API_DOMAIN}:3000`,
-  Vary: 'origin',
+  // 'Access-Control-Allow-Origin': `http://${process.env.REACT_APP_API_DOMAIN}`,
+  // Vary: 'origin',
   'Content-Type': 'application/json',
 };
 
