@@ -1,6 +1,6 @@
 import { Flex, Loader, Text } from '@fluentui/react-northstar'
 import React from 'react'
-import { useQueryCache } from 'react-query'
+import { useQueryClient } from 'react-query'
 import { Link } from 'react-router-dom'
 import { useGetUsers } from '../api/authQueries'
 import { LOGIN_PATH, REGISTER_PATH } from '../routes/Paths'
@@ -11,7 +11,7 @@ interface Props {
 }
 
 export const HomePage: React.FC<Props> = ({ children }) => {
-    const cache = useQueryCache();
+    // const cache = useQueryClient();
     const { status, data, error, isFetching } = useGetUsers();
 
 

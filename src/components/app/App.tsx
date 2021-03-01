@@ -5,13 +5,16 @@ import { Button, Flex, Debug } from '@fluentui/react-northstar'
 import { IconContext } from 'react-icons'
 import { ws, client, room, makeConnection, localConnection } from '../../utils/sockets/socket';
 import Router from '../../routes/Router'
-import { useQuery, useMutation, useQueryCache, QueryCache, ReactQueryCacheProvider } from 'react-query'
+import { QueryClient, QueryClientProvider } from 'react-query'
+import { ReactQueryDevtools } from 'react-query/devtools'
 
-const queryCache = new QueryCache()
+export const queryClient = new QueryClient()
 
 function App() {
   return (
-    <ReactQueryCacheProvider queryCache={queryCache}>
+    // <ReactQueryCacheProvider queryCache={queryCache}>
+    <QueryClientProvider client={queryClient}>
+      <ReactQueryDevtools initialIsOpen={false} />
       <BrowserRouter>
         <IconContext.Provider value={{ size: '1.25rem' }}>
           <Flex column>
@@ -20,7 +23,7 @@ function App() {
           </Flex>
         </IconContext.Provider>
       </BrowserRouter>
-    </ReactQueryCacheProvider>
+    </QueryClientProvider>
   );
 }
 

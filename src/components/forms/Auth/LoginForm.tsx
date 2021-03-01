@@ -22,7 +22,8 @@ export const LoginForm: React.FC<Props> = ({ children }) => {
     // const todosQuery = useQuery('todos', getTodos)
     // const { isLoading, error, data }
 
-    const [loginMutation, { isLoading }] = useLoginQuery();
+    // const [loginMutation, { isLoading }] = useLoginQuery();
+    const { mutateAsync: loginMutation, isLoading } = useLoginQuery();
 
     const [success, setSuccess] = useState(false)
 

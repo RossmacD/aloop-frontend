@@ -18,7 +18,7 @@ function RegisterForm({ width }: Props): ReactElement {
     // const todosQuery = useQuery('todos', getTodos)
     // const { isLoading, error, data }
 
-    const [registerMutation, { isLoading }] = useRegisteryQuery();
+    const { mutateAsync: registerMutation, isLoading } = useRegisteryQuery();
 
     const [success, setSuccess] = useState(false)
 

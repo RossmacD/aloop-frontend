@@ -1,4 +1,5 @@
-import { queryCache, useMutation, useQuery } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
+import { queryClient } from '../components/app/App';
 import { LOGIN_PATH, REGISTER_PATH, SELF_PATH, USERS_PATH } from '../routes/Paths';
 import { getFetch, postFetch } from './defaults';
 
@@ -61,7 +62,7 @@ const getUsers = async () =>
 export const useRegisteryQuery = () => useMutation(postRegister);
 export const useLoginQuery = () =>
   useMutation(postLogin, {
-    onSuccess: (data) => queryCache.setQueryData(SELF_CACHE_KEY, data),
+    onSuccess: (data) => queryClient.setQueryData(SELF_CACHE_KEY, data),
   });
 
 export const useGetSelfQuery = () => useQuery(SELF_CACHE_KEY, getSelf);
