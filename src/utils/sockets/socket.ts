@@ -12,6 +12,33 @@ export const localConnection = new RTCPeerConnection();
 // export const [callerId, setCallerId] = useState('');
 // localConnection.ontrack = ;
 
+interface RoomUsers {
+  room: string;
+  user_ids: number[];
+}
+
+interface getOnlineUsersResult {
+  online_users: RoomUsers[];
+  protocol: string;
+}
+
+type GetOnlineUsersEvent = (json: getOnlineUsersResult) => void;
+let onGetOnlineUsers: GetOnlineUsersEvent = (json) => {
+  console.log('Online Users:', json.online_users);
+};
+
+export const setGetOnlineUsers = (onGetOnlineUsersFunc: GetOnlineUsersEvent) => {
+  onGetOnlineUsers = onGetOnlineUsersFunc;
+};
+
+export const triggerGetOnlineUsers = () => {
+  const payload = {
+    protocol: 'GET_ONLINE_USERS',
+    room: 'Main',
+  };
+  ws.send(JSON.stringify(payload));
+};
+
 ws.onopen = (e) => {
   console.log('Websocket Connection');
 };
@@ -44,6 +71,7 @@ ws.onmessage = async (e) => {
     switch (json.protocol) {
       case 'GET_ONLINE_USERS':
         //DO SOMETHING
+        onGetOnlineUsers(json);
         break;
     }
   }

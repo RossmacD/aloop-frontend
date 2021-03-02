@@ -12,6 +12,7 @@ import LoginPage from "../pages/Auth/LoginPage";
 import { HomePage } from "../pages/HomePage";
 import ProfilePage from "../pages/Auth/ProfilePage";
 import { VideoRooms } from "../components/video/VideoRooms";
+import { SidePanel } from '../components/video/SidePanel';
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default () => {
@@ -36,7 +37,9 @@ export default () => {
       </Route>
       <Route path={"/video"}>
         <CenteredPage>
-          <VideoRooms />
+          <SidePanel>
+            <VideoRooms />
+          </SidePanel>
           <VideoCall />
         </CenteredPage>
       </Route>
