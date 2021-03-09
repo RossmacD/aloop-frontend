@@ -1,20 +1,21 @@
 
 
 
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useLoginQuery } from '../../../api/authQueries'
 import { MakeForm } from '../../../utils/forms/MakeForm'
 import { emailValidation } from '../../../utils/validators/emailValidation'
 import { passwordValidation } from '../../../utils/validators/passwordValidation'
+import { LOGIN } from '../../app/authReducer'
 import { FormTemplate } from '../template/FormTemplate'
-
+import { AuthUserContext } from '../../app/App'
 interface Props {
 
 }
 
 export const LoginForm: React.FC<Props> = ({ children }) => {
-
+    const authcontext = useContext(AuthUserContext)
     // Form Validation
     const { register, handleSubmit, setError, errors, formState, getValues } = useForm({ mode: 'onBlur', reValidateMode: 'onBlur', });
     // Submission : Change to react Query
@@ -43,6 +44,10 @@ export const LoginForm: React.FC<Props> = ({ children }) => {
                     })
                     // Process successful login
                     console.log(all)
+                    authcontext?.dispatch({
+                        type: LOGIN,
+                        payload: all
+                    })
                     setSuccess(true)
                 })
                 .catch((err) => {
@@ -56,10 +61,6 @@ export const LoginForm: React.FC<Props> = ({ children }) => {
             })
         }
     }
-
-
-
-
 
     return (<FormTemplate success={success} fetching={isLoading} onSubmit={handleSubmit(attemptLogin)}>
         {MakeForm([

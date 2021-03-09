@@ -38,6 +38,7 @@ export const MakeForm = (fields: ShorthandField[], errors: DeepMap<Record<string
         form.push(<Form.Input
             label={humanLabel}
             id={field.id}
+            key={field.id}
             name={field.id}
             type={field?.type}
             ref={register(field?.validation || {})}
