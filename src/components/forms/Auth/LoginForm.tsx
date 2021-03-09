@@ -16,7 +16,7 @@ interface Props {
 export const LoginForm: React.FC<Props> = ({ children }) => {
 
     // Form Validation
-    const { register, handleSubmit, setError, errors, formState, getValues } = useForm({ mode: 'onBlur', reValidateMode: 'onBlur' });
+    const { register, handleSubmit, setError, errors, formState, getValues } = useForm({ mode: 'onBlur', reValidateMode: 'onBlur', });
     // Submission : Change to react Query
     // const [{ fetching }, registerMutation] = useRegisterMutation()
     // const todosQuery = useQuery('todos', getTodos)
@@ -27,7 +27,8 @@ export const LoginForm: React.FC<Props> = ({ children }) => {
 
     const [success, setSuccess] = useState(false)
 
-    const attemptLogin: SubmitHandler<any> = (data) => {
+    const attemptLogin: SubmitHandler<any> = (data, event) => {
+        event?.preventDefault();
         // Get email and password from data
         const { email, password } = data;
         //Try to login
@@ -36,9 +37,9 @@ export const LoginForm: React.FC<Props> = ({ children }) => {
                 .then((all) => {
                     console.log(all)
                     // If theres a server error show in UI
-                    if (all && all.error) return setError("password", {
+                    if (all && (all.message || all.errors)) return setError("password", {
                         type: "server",
-                        message: "Email already taken"
+                        message: all?.errors[0]?.message || "Password Incorrect"
                     })
                     // Process successful login
                     console.log(all)

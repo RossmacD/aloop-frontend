@@ -9,7 +9,7 @@ interface Props {
 
 export const SidePanel: React.FC<Props> = ({ children }) => {
     return (
-        <Flex styles={{ position: 'absolute', height: '100vh', left: 0 }}>
+        <Flex styles={{ position: 'absolute', height: '100%', left: 0, top: 0, bottom: 0 }}>
             {children}
         </Flex >
     )
