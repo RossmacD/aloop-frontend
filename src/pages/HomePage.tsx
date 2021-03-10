@@ -13,7 +13,7 @@ interface Props {
 
 export const HomePage: React.FC<Props> = ({ children }) => {
     // const cache = useQueryClient();
-    const { status, data, error, isFetching } = useGetUsers();
+    const { data, error, isFetching } = useGetUsers();
     const authcontext = useContext(AuthUserContext)
 
 

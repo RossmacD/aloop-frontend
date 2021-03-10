@@ -1,8 +1,8 @@
-export const BASE_URL = `http${process.env.HTTPS ? 's' : ''}://${process.env.REACT_APP_API_DOMAIN}${
-  process.env.REACT_APP_API_PORT !== '80' ? ':' + process.env.REACT_APP_API_PORT : ''
-}/api`;
+export const BASE_URL = `http${process.env.REACT_APP_HTTPS ? 's' : ''}://${
+  process.env.REACT_APP_API_DOMAIN
+}${process.env.REACT_APP_API_PORT !== '80' ? ':' + process.env.REACT_APP_API_PORT : ''}/api`;
 
-export const BASE_SOCKET_URL = `ws${process.env.HTTPS ? 's' : ''}://${
+export const BASE_SOCKET_URL = `ws${process.env.REACT_APP_HTTPS ? 's' : ''}://${
   process.env.REACT_APP_API_DOMAIN
 }${process.env.REACT_APP_API_PORT !== '80' ? ':' + process.env.REACT_APP_API_PORT : ''}/api`;
 
