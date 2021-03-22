@@ -1,7 +1,7 @@
 import { Flex } from "@fluentui/react-northstar";
 import React, { useEffect, useState } from "react";
 import { useGetVideoChannelQuery } from "../../api/videoQueries";
-import { setGetOnlineUsers, triggerGetOnlineUsers } from "../../utils/sockets/socket";
+// import { setGetOnlineUsers, triggerGetOnlineUsers } from "../../utils/sockets/socket";!
 import { FetchTemplate } from "../FetchTemplate";
 
 interface Props {
@@ -17,17 +17,17 @@ export const VideoRooms: React.FC<Props> = () => {
     const [roomUsers, setRoomUsers] = useState<ReshapedroomUsers>({})
     useEffect(() => {
         // Handle GetUsers return from ws
-        setGetOnlineUsers((json) => {
-            let roomMap: ReshapedroomUsers = {}
-            for (const roomUser of json.online_users) {
-                roomMap[roomUser.room] = roomUser.user_ids
-            }
-            setRoomUsers(roomMap)
-        })
+        // setGetOnlineUsers((json) => {
+        //     let roomMap: ReshapedroomUsers = {}
+        //     for (const roomUser of json.online_users) {
+        //         roomMap[roomUser.room] = roomUser.user_ids
+        //     }
+        //     setRoomUsers(roomMap)
+        // })
         // Send GetUsers
-        triggerGetOnlineUsers()
+        // triggerGetOnlineUsers()
 
-        return setGetOnlineUsers((json) => { console.error(json) })
+        // return setGetOnlineUsers((json) => { console.error(json) })
     }, [])
     return (
         <Flex column>

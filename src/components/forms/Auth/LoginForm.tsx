@@ -10,14 +10,16 @@ import { passwordValidation } from '../../../utils/validators/passwordValidation
 import { LOGIN } from '../../app/authReducer'
 import { FormTemplate } from '../template/FormTemplate'
 import { AuthUserContext } from '../../app/App'
+import { SocketContext } from '../../app/SocketProvider'
 interface Props {
 
 }
 
 export const LoginForm: React.FC<Props> = ({ children }) => {
     const authcontext = useContext(AuthUserContext)
+    const socketContext = useContext(SocketContext)
     // Form Validation
-    const { register, handleSubmit, setError, errors, formState, getValues } = useForm({ mode: 'onBlur', reValidateMode: 'onBlur', });
+    const { register, handleSubmit, setError, errors, formState, } = useForm({ mode: 'onBlur', reValidateMode: 'onBlur', });
     // Submission : Change to react Query
     // const [{ fetching }, registerMutation] = useRegisterMutation()
     // const todosQuery = useQuery('todos', getTodos)
@@ -46,8 +48,10 @@ export const LoginForm: React.FC<Props> = ({ children }) => {
                     console.log(all)
                     authcontext?.dispatch({
                         type: LOGIN,
-                        payload: all
+                        payload: all,
+                        connectWebsocket: socketContext.connectWebsocket
                     })
+
                     setSuccess(true)
                 })
                 .catch((err) => {

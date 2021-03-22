@@ -1,5 +1,3 @@
-import { ReducerWithoutAction } from 'react';
-
 // Export strings : These are the actions that can be run
 export const LOGIN = 'LOGIN';
 export const LOGOUT = 'LOGOUT';
@@ -15,10 +13,18 @@ export interface AuthState {
   user: User | null;
 }
 
-interface ReducerAction {
-  type: typeof LOGIN | typeof LOGOUT;
+interface LoginAction {
+  type: typeof LOGIN;
+  payload: AuthState['user'];
+  connectWebsocket: (user_id: number) => void;
+}
+
+interface LogoutAction {
+  type: typeof LOGOUT;
   payload: { user: AuthState['user'] };
 }
+
+type ReducerAction = LogoutAction | LoginAction;
 
 export interface UserAuthContext {
   selfState: AuthState;
@@ -30,13 +36,19 @@ export const authReducer = (state: AuthState, action: ReducerAction): AuthState 
     case LOGIN:
       console.log(action);
       // Seperate the api_token from the user, add to state
-      const { user } = action.payload;
+      const user  = action.payload;
+      if(user?.user_id){
+        console.log("addingSocket")
+        action.connectWebsocket(user?.user_id)
+      }else{
+        console.log("FUCK",action)
+      };
       return { ...state, auth: true, user };
     case LOGOUT:
       console.log('Logging out');
       return { ...state, auth: false, user: null };
     default:
-      console.error('Auth Reducer: Action does not exist', action.type);
+      console.error('Auth Reducer: Action does not exist', action);
       return state;
   }
 };

@@ -1,13 +1,13 @@
-import { BASE_SOCKET_URL, BASE_URL } from '../../config';
+// import { BASE_SOCKET_URL, BASE_URL } from '../../config';
 
-export const wsAddr = BASE_URL;
+// export const wsAddr = BASE_URL;
 // export const client = 'user' + Math.random();
-export const client = 1;
-export const room = 'this_room';
+// export const client = 1;
+// export const room = 'this_room';
 // const options = {
 //   rejectUnauthorized: false,
 // };
-export const ws = new WebSocket(`${BASE_SOCKET_URL}/signalling/?user=${client}`);
+// export const ws = new WebSocket(`${BASE_SOCKET_URL}/signalling/?user=${client}`);
 export const localConnection = new RTCPeerConnection();
 // export const [callerId, setCallerId] = useState('');
 // localConnection.ontrack = ;
@@ -31,7 +31,7 @@ export const setGetOnlineUsers = (onGetOnlineUsersFunc: GetOnlineUsersEvent) => 
   onGetOnlineUsers = onGetOnlineUsersFunc;
 };
 
-export const triggerGetOnlineUsers = () => {
+export const triggerGetOnlineUsers = (ws: WebSocket) => {
   const payload = {
     protocol: 'GET_ONLINE_USERS',
     room: 'Main',
@@ -39,30 +39,30 @@ export const triggerGetOnlineUsers = () => {
   ws.send(JSON.stringify(payload));
 };
 
-ws.onopen = (e) => {
-  console.log('Websocket Connection');
-};
+export const setSocketHandlers = (ws: WebSocket,room:String, clientId: number) => {
+  ws.onopen = (e) => {
+    console.log('Websocket Connection');
+  };
 
-ws.onmessage = async (e) => {
-  const json = JSON.parse(e.data);
-  if (json.from !== client && (json.endpoint === client || json.room === room)) {
+  ws.onmessage = async (e) => {
+    const json = JSON.parse(e.data);
+    // if (json.from !== client_id && (json.endpoint === client_id || json.room === room)) {
     switch (json.action) {
       case 'HANDLE_CONNECTION':
         console.log('NEW PEER WANTS TO CONNECT');
-        connectPeers(json.data);
+        connectPeers(json.data,room,clientId,ws);
         break;
       case 'offer':
         console.log('GOT OFFER FROM A NODE WE WANT TO CONNECT TO');
         console.log('THE NODE IS', json.from);
-        processOffer(json.from, json.data);
+        processOffer(json.from,room,clientId, json.data,ws);
         break;
       case 'candidate':
         console.log('NEW Candidate');
         break;
       case 'answer':
         console.log('--- GOT ANSWER IN CONNECT ---');
-        // callerId=
-        // setCallerId(json.from);
+
         // console.log('HJAHSDHASHDHASDHASDHASDHASDASDHASDasdasdasd', json.from);
         localConnection.setRemoteDescription(new RTCSessionDescription(json.data));
         break;
@@ -74,24 +74,26 @@ ws.onmessage = async (e) => {
         onGetOnlineUsers(json);
         break;
     }
-  }
+  };
+
+  return ws;
 };
 
-const connectPeers = (requester: any) => {
+const connectPeers = (requester: any,room:String,clientId:number,ws:WebSocket) => {
   console.log('CONNECTING PEERS');
   // Create the local connection and its event listeners
   // const sendChannel = localConnection.createDataChannel("sendChannel");
   localConnection.onicecandidate = (iceEvent) => {
     // Send the ice candidate
     if (iceEvent.candidate) {
-      sendOneToOneNegotiation('candidate', requester, iceEvent.candidate);
+      sendOneToOneNegotiation('candidate',room,clientId, requester, iceEvent.candidate,ws);
     }
   };
   localConnection
     .createOffer({ offerToReceiveVideo: true })
     .then((offer) => {
       localConnection.setLocalDescription(offer);
-      sendOneToOneNegotiation('offer', requester, offer);
+      sendOneToOneNegotiation('offer',room,clientId, requester, offer,ws);
       console.log('------ SEND OFFER ------');
     })
     .catch((err) => {
@@ -99,13 +101,13 @@ const connectPeers = (requester: any) => {
     });
 };
 
-function processOffer(requester: any, remoteOffer: any) {
+function processOffer(requester: any,room:String,clientId:number, remoteOffer: any,ws:WebSocket) {
   console.log('RUNNING PROCESS OFFER');
   // let localConnection = new RTCPeerConnection({});
 
   localConnection.onicecandidate = (event) => {
     if (event.candidate) {
-      sendOneToOneNegotiation('candidate', requester, event.candidate);
+      sendOneToOneNegotiation('candidate',room,clientId, requester, event.candidate,ws);
     }
   };
 
@@ -115,22 +117,24 @@ function processOffer(requester: any, remoteOffer: any) {
   localConnection.createAnswer().then((localDescription) => {
     localConnection.setLocalDescription(localDescription);
     console.log('------ SEND ANSWER ------');
-    sendOneToOneNegotiation('answer', requester, localDescription);
+    sendOneToOneNegotiation('answer',room,clientId, requester, localDescription,ws);
   });
 }
 
 // Send connection request to a specific endpoint-id
 const sendOneToOneNegotiation = (
   action: 'candidate' | 'offer' | 'answer',
+  room:String,clientId:number,
   endpoint: any,
-  data: any
+  data: any,
+  ws: WebSocket
 ) => {
   console.log('Action:', action, !!ws);
   if (ws) {
     ws.send(
       JSON.stringify({
         protocol: 'one-to-all',
-        from: client,
+        from: clientId,
         room: room,
         endpoint: endpoint,
         action,
@@ -140,17 +144,17 @@ const sendOneToOneNegotiation = (
   }
 };
 
-export const makeConnection: () => boolean = () => {
+export const makeConnection = (room:String,clientId:number,ws:WebSocket):boolean => {
   console.log('Connected -> sending negotiations', ws);
   if (!!ws && ws.readyState === WebSocket.OPEN) {
     ws.send(
       JSON.stringify({
         protocol: 'one-to-all',
         room,
-        from: client,
+        from: clientId,
         endpoint: 'any',
         action: 'HANDLE_CONNECTION',
-        data: client,
+        data: clientId,
       })
     );
     return true;

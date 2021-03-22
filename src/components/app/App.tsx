@@ -8,7 +8,7 @@ import Router from '../../routes/Router'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import { authReducer, UserAuthContext } from './authReducer';
-
+import { SocketProvider } from './SocketProvider'
 // The query client for react fetch
 export const queryClient = new QueryClient()
 
@@ -22,17 +22,19 @@ function App() {
   })
   return (
     <AuthUserContext.Provider value={{ selfState, dispatch }}>
-      <QueryClientProvider client={queryClient}>
-        <ReactQueryDevtools initialIsOpen={false} />
-        <BrowserRouter>
-          <IconContext.Provider value={{ size: '1.25rem' }}>
-            <Flex column>
-              <Router />
-              <Debug />
-            </Flex>
-          </IconContext.Provider>
-        </BrowserRouter>
-      </QueryClientProvider>
+      <SocketProvider>
+        <QueryClientProvider client={queryClient}>
+          <ReactQueryDevtools initialIsOpen={false} />
+          <BrowserRouter>
+            <IconContext.Provider value={{ size: '1.25rem' }}>
+              <Flex column>
+                <Router />
+                <Debug />
+              </Flex>
+            </IconContext.Provider>
+          </BrowserRouter>
+        </QueryClientProvider>
+      </SocketProvider>
     </AuthUserContext.Provider>
   );
 }
