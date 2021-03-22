@@ -1,14 +1,17 @@
 import { BASE_SOCKET_URL } from '../../config'
+type ActionHandler = (json: any) => void
 
 export class RTCSocket {
     ws: WebSocket;
     localConnection: RTCPeerConnection;
     client_id: number;
+    actionHandlers: { [key: string]: ActionHandler }
 
     constructor(client_id: number) {
         this.ws = new WebSocket(`${BASE_SOCKET_URL}/signalling/`);
         this.localConnection = new RTCPeerConnection();
         this.client_id = client_id
+        this.actionHandlers = {}
     }
 
 
@@ -38,6 +41,10 @@ export class RTCSocket {
                         // console.log('HJAHSDHASHDHASDHASDHASDHASDASDHASDasdasdasd', json.from);
                         this.localConnection.setRemoteDescription(new RTCSessionDescription(json.data));
                         break;
+                    default:
+                        for (const handler in this.actionHandlers) {
+                            this.actionHandlers[handler](json)
+                        }
                 }
 
                 switch (json.protocol) {
@@ -142,5 +149,24 @@ export class RTCSocket {
     emptyTracks = () => {
         // this.localConnection.ontrack = () => { }
         this.localConnection = new RTCPeerConnection()
+    }
+
+
+    joinVidChan = (room: String, action: (json: any) => void) => {
+        this.ws.send(JSON.stringify({
+            room,
+            from: this.client_id,
+            protocol: 'JOIN_VIDCHAN',
+        }))
+        this.actionHandlers["ROOM_JOIN"] = (json) => {
+            console.log()
+            if (json.action === "ROOM_JOIN" && json.user_id === this.client_id) {
+                action(json)
+            }
+        }
+    }
+
+    clearHandler = (action: string) => {
+        delete this.actionHandlers[action]
     }
 }

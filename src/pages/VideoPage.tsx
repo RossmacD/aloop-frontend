@@ -1,12 +1,12 @@
 import { Button, Flex, Menu, MenuItemProps, MenuShorthandKinds, ShorthandCollection } from '@fluentui/react-northstar'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useGetVideoChannelQuery } from '../api/videoQueries'
 import { VideoCall } from '../components/video/VideoCall'
 import { CancelIcon } from '../style/icons'
 import { gsaTheme } from '../style/theme'
 import { makeAction } from '../utils/MakeAction'
 import CenteredPage from './templates/CenteredPage'
-
+import { SocketContext } from '../components/app/SocketProvider'
 interface Props {
 
 }
@@ -14,6 +14,7 @@ interface Props {
 export const VideoPage: React.FC<Props> = ({ children }) => {
     const { data, error, isFetching } = useGetVideoChannelQuery();
     const [selectedRoom, setSelectedRoom] = useState<undefined | String>(undefined)
+    const socketContext = useContext(SocketContext)
 
     const divider = {
         key: 'divider',
@@ -36,7 +37,7 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
     const [menuItems, setMenuItems] = useState(defaultMenu)
 
     const setRoom = (room: String) => {
-        setSelectedRoom(`#?${room}`)
+        socketContext?.socket?.current?.joinVidChan(room, (action) => { setSelectedRoom(`#?${room}`) })
     }
 
     useEffect(() => {
@@ -53,6 +54,12 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
     }, [data])
 
 
+
+    useEffect(() => {
+        return () => {
+            socketContext?.socket?.current?.clearHandler("ROOM_JOIN")
+        }
+    }, [])
 
 
     return (
