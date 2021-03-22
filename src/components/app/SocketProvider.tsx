@@ -1,39 +1,30 @@
 import React, { createContext, useContext, useRef } from 'react'
-import { BASE_SOCKET_URL } from '../../config';
-import { setSocketHandlers } from '../../utils/sockets/socket';
+import { RTCSocket } from '../../utils/sockets/socketTemp';
 import { Option } from '../../utils/types'
-import { AuthUserContext } from './App'
+
 interface Props {
 
 }
 
 interface SocketApiContext {
-    ws: Option<WebSocket>,
+    socket: Option<React.MutableRefObject<Option<RTCSocket>>>,
     connectWebsocket: (user_id: number) => void
 
 }
 
-export const SocketContext = createContext<SocketApiContext>({ ws: undefined, connectWebsocket: () => { } })
+export const SocketContext = createContext<SocketApiContext>({ socket: undefined, connectWebsocket: () => { } })
 
 export const SocketProvider: React.FC<Props> = ({ children }) => {
-    const authContext = useContext(AuthUserContext)
-
-    const ws = useRef<Option<WebSocket>>(undefined);
-
+    const socket = useRef<Option<RTCSocket>>(undefined);
     const connectWebsocket = (user_id: number) => {
-        if ((!ws.current || ws.current?.readyState === WebSocket.CLOSED) /*&& authContext?.selfState.auth && authContext?.selfState.user?.user_id*/) {
+        if ((!socket.current || socket.current?.ws.readyState === WebSocket.CLOSED)) {
             // Connect
-            ws.current = new WebSocket(`${BASE_SOCKET_URL}/signalling/`);
-            // Set websocket events
-            ws.current = setSocketHandlers(ws.current, "#!Main", user_id)
+            socket.current = new RTCSocket(user_id).setSocketHandlers();
         }
     }
 
-
-
-
     return (
-        <SocketContext.Provider value={{ ws: ws.current, connectWebsocket }}>
+        <SocketContext.Provider value={{ socket, connectWebsocket }}>
             {children}
         </SocketContext.Provider>
     )

@@ -13,6 +13,7 @@ import { HomePage } from "../pages/HomePage";
 import ProfilePage from "../pages/Auth/ProfilePage";
 import { VideoRooms } from "../components/video/VideoRooms";
 import { SidePanel } from '../components/video/SidePanel';
+import { VideoPage } from "../pages/VideoPage";
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default () => {
@@ -36,12 +37,7 @@ export default () => {
         <RegisterPage />
       </Route>
       <Route path={"/video"}>
-        <CenteredPage>
-          <SidePanel>
-            <VideoRooms />
-          </SidePanel>
-          <VideoCall />
-        </CenteredPage>
+        <VideoPage />
       </Route>
       <Route path={"/profile"}>
         <ProfilePage />

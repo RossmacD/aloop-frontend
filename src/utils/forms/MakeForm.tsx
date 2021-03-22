@@ -1,5 +1,5 @@
 import React, { RefObject } from 'react'
-import { Form } from "@fluentui/react-northstar"
+import { Form, FormInput } from "@fluentui/react-northstar"
 import { DeepMap } from 'react-hook-form/dist/types/utils'
 import { FieldError } from 'react-hook-form'
 import { FormStateProxy } from 'react-hook-form/dist/types/form'
@@ -35,7 +35,7 @@ export const MakeForm = (fields: ShorthandField[], errors: DeepMap<Record<string
         // PERFORMANCE??? - this only needs to be done for dynamic forms, good place to look at performance if slow
         const error = stringAsNestedSelector<typeof errors>(errors, field.id);
         const touched = stringAsNestedSelector<typeof formState.touched>(formState.touched, field.id);
-        form.push(<Form.Input
+        form.push(<FormInput
             label={humanLabel}
             id={field.id}
             key={field.id}

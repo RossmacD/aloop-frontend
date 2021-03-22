@@ -1,20 +1,34 @@
 import { Button } from '@fluentui/react-northstar'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useContext } from 'react'
+import { SocketContext } from '../app/SocketProvider';
+import { VideoPanel } from './VideoPanel';
 // import { makeConnection, localConnection, client } from '../../utils/sockets/socket';!!!
 
 interface Props {
-
+    selectedRoom: String | undefined
 }
 
-export const VideoCall: React.FC<Props> = ({ children }) => {
+export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const incomingVidRef = useRef<HTMLVideoElement>(null);
     // const [streamOut, setStream] = useState<MediaStream>()
     const [inCall, setInCall] = useState(false)
     const [callMessage, setCallMessage] = useState<string>("")
 
-    const signalConnect = () => {
+    const socketContext = useContext(SocketContext)
+
+
+    const joinRoom = (room: String) => {
+        console.log("Joining Call")
         setInCall(true)
+        if (socketContext?.socket?.current?.makeConnection(room)) {
+            console.log("Connected!")
+        } else {
+            console.log("No it broken", socketContext)
+        }
+
+
+
         // if (makeConnection()) {
 
         // } else {
@@ -31,7 +45,8 @@ export const VideoCall: React.FC<Props> = ({ children }) => {
             .then((stream) => {
                 if (videoRef?.current) {
                     videoRef.current.srcObject = stream
-                    // localConnection.ontrack = gotRemoteStream;
+                    // socketContext?.socket?.current?.localConnection.ontrack = gotRemoteStream;
+                    socketContext?.socket?.current?.setTracks(gotRemoteStream, stream)
                     // stream.getTracks().forEach(track => localConnection.addTrack(track, stream));
                     //! setStream(stream)
                     // !makeVideoCall(stream)
@@ -100,6 +115,16 @@ export const VideoCall: React.FC<Props> = ({ children }) => {
     //         .catch(err => console.error(err))
     // }
 
+    const disconnectCall = () => {
+        //emptyTracks
+        socketContext?.socket?.current?.emptyTracks()
+    }
+
+    useEffect(() => {
+        if (selectedRoom) joinRoom(selectedRoom)
+        return disconnectCall
+    }, [selectedRoom])
+
 
     return (
         <div>
@@ -108,14 +133,10 @@ export const VideoCall: React.FC<Props> = ({ children }) => {
                 <p style={{ position: "absolute", color: 'white', top: 10, left: 10 }}>Your Name: {"client"}</p>
             </div>
             {/* {inCall ? ( */}
-            <div style={{ position: "relative" }}>
-                <video ref={incomingVidRef} playsInline autoPlay width="426" height="240"></video>
-                <p style={{ position: "absolute", color: 'white', top: 10, left: 10 }}>Caller Name: {'caller'}</p>
-            </div>
-            {/* ) : ''
-             } */}
+            <VideoPanel videoRef={incomingVidRef}></VideoPanel>
+
             <p>{callMessage}</p>
-            <Button content="Join Room" primary onClick={() => signalConnect()} disabled={inCall} />
+            {/* <Button content="Join Room" primary onClick={() => signalConnect()} disabled={inCall} /> */}
         </div>
     )
 }
