@@ -64,20 +64,22 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
 
     return (
         <>
-            <Flex style={{ width: '16rem', position: 'relative', top: 0, left: 0, height: '100vh' }}>
-                <Menu
-                    styles={{ height: '100vh', width: '100%', backgroundColor: gsaTheme.siteVariables.colors.grey['50'] }}
-                    items={menuItems}
-                    pointing
-                    vertical
-                />
-                <Button onClick={() => { }} styles={{
-                    alignSelf: 'flex-end', position: 'absolute', top: '1rem', right: '-1rem', ':hover': {
-                        backgroundColor: gsaTheme.siteVariables.colors.grey['100'],
-                    },
-                }} icon={<CancelIcon />} iconOnly title="Close" circular />
+            <Flex style={{ width: '100vw', height: '100vh' }}>
+                <Flex style={{ width: '16rem', position: 'relative', top: 0, left: 0, height: '100vh' }}>
+                    <Menu
+                        styles={{ height: '100vh', width: '100%', backgroundColor: gsaTheme.siteVariables.colors.grey['50'] }}
+                        items={menuItems}
+                        pointing
+                        vertical
+                    />
+                    <Button onClick={() => { }} styles={{
+                        alignSelf: 'flex-end', position: 'absolute', top: '1rem', right: '-1rem', ':hover': {
+                            backgroundColor: gsaTheme.siteVariables.colors.grey['100'],
+                        },
+                    }} icon={<CancelIcon />} iconOnly title="Close" circular />
+                </Flex>
+                <VideoCall selectedRoom={selectedRoom}></VideoCall>
             </Flex>
-            <VideoCall selectedRoom={selectedRoom}></VideoCall>
         </>
     )
 }

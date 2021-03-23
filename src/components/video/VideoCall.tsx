@@ -41,19 +41,26 @@ export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
     const pipeErr = (err: Error) => { throw err }
 
     useEffect(() => {
+        // console.log(navigator.mediaDevices.getUserMedia({ audio: false, video: true }).then)
         if (!navigator.mediaDevices?.getUserMedia({ audio: false, video: true })
             .then((stream) => {
+                console.log("Stream")
                 if (videoRef?.current) {
                     videoRef.current.srcObject = stream
+                    console.log("Adding Stream", socketContext?.socket?.current)
                     // socketContext?.socket?.current?.localConnection.ontrack = gotRemoteStream;
                     socketContext?.socket?.current?.setTracks(gotRemoteStream, stream)
                     // stream.getTracks().forEach(track => localConnection.addTrack(track, stream));
                     //! setStream(stream)
                     // !makeVideoCall(stream)
+                } else {
+                    console.log("oh nowy")
                 }
             }).catch((err) => console.error(`Error getting media device`, err))) {
             // There are no media devices
             setCallMessage("No media devices found, is your camera / microphone connected?")
+        } else {
+            console.log("noVideo")
         };
     }, [videoRef])
 
