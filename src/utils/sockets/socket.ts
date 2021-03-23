@@ -34,7 +34,7 @@ export const setGetOnlineUsers = (onGetOnlineUsersFunc: GetOnlineUsersEvent) => 
 export const triggerGetOnlineUsers = (ws: WebSocket) => {
   const payload = {
     protocol: 'GET_ONLINE_USERS',
-    room: 'Main',
+    room: '#!Main',
   };
   ws.send(JSON.stringify(payload));
 };

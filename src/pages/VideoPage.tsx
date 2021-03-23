@@ -37,7 +37,10 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
     const [menuItems, setMenuItems] = useState(defaultMenu)
 
     const setRoom = (room: String) => {
-        socketContext?.socket?.current?.joinVidChan(room, (action) => { setSelectedRoom(`#?${room}`) })
+        socketContext?.socket?.current?.joinVidChan(room, (action) => {
+            console.log("Selecting room:", `${room}`)
+            setSelectedRoom(`#?${room}`)
+        })
     }
 
     useEffect(() => {

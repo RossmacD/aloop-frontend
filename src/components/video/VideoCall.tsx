@@ -24,18 +24,10 @@ export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
         if (socketContext?.socket?.current?.makeConnection(room)) {
             console.log("Connected!")
         } else {
-            console.log("No it broken", socketContext)
+            setInCall(false)
+            console.log("Could not connect")
+            setCallMessage("Could not connect")
         }
-
-
-
-        // if (makeConnection()) {
-
-        // } else {
-        //     setInCall(false)
-        //     console.log("Could not connect")
-        //     setCallMessage("Could not connect")
-        // }
     }
 
     const pipeErr = (err: Error) => { throw err }
@@ -44,7 +36,7 @@ export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
         // console.log(navigator.mediaDevices.getUserMedia({ audio: false, video: true }).then)
         if (!navigator.mediaDevices?.getUserMedia({ audio: false, video: true })
             .then((stream) => {
-                console.log("Stream")
+                // console.log("Stream")
                 if (videoRef?.current) {
                     videoRef.current.srcObject = stream
                     console.log("Adding Stream", socketContext?.socket?.current)
@@ -54,13 +46,13 @@ export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
                     //! setStream(stream)
                     // !makeVideoCall(stream)
                 } else {
-                    console.log("oh nowy")
+                    // console.log("oh nowy")
                 }
             }).catch((err) => console.error(`Error getting media device`, err))) {
             // There are no media devices
             setCallMessage("No media devices found, is your camera / microphone connected?")
         } else {
-            console.log("noVideo")
+            // console.log("noVideo")
         };
     }, [videoRef])
 
@@ -69,6 +61,7 @@ export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
     }
 
     const gotRemoteStream = (e: any) => {
+        console.log("GOT reomte", e)
         if (incomingVidRef?.current && incomingVidRef?.current?.srcObject !== e.streams[0]) {
             incomingVidRef.current.srcObject = e.streams[0];
             // console.log('pc2 received remote stream');
@@ -81,7 +74,10 @@ export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
     }
 
     useEffect(() => {
-        if (selectedRoom) joinRoom(selectedRoom)
+        console.log("Joining selected Romm:", selectedRoom)
+        if (selectedRoom) {
+            joinRoom(selectedRoom)
+        }
         return disconnectCall
     }, [selectedRoom])
 
@@ -90,7 +86,7 @@ export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
         <div>
             <div style={{ position: "relative" }}>
                 <video ref={videoRef} onCanPlay={canPlay} id="player" autoPlay playsInline muted width="426" height="240" />
-                <p style={{ position: "absolute", color: 'white', top: 10, left: 10 }}>Your Name: {"client"}</p>
+                <p style={{ position: "absolute", color: 'green', top: 10, left: 10 }}>Your Name: {"client"}</p>
             </div>
             {/* {inCall ? ( */}
             <VideoPanel videoRef={incomingVidRef}></VideoPanel>
