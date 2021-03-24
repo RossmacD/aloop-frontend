@@ -30,7 +30,8 @@ export class RTCSocket {
     connections: Map<number, RTCPeerConnection>;
     client_id: number;
     actionHandlers: { [key: string]: ActionHandler }
-    updateTracks = () => { }
+    updateTracks = (id: number) => { }
+    setCallMembers?: React.Dispatch<React.SetStateAction<number[]>>;
 
     constructor(client_id: number) {
         this.ws = new WebSocket(`${BASE_SOCKET_URL}/signalling/`);
@@ -100,9 +101,10 @@ export class RTCSocket {
         return this;
     };
 
-    makeConnection = (room: String): boolean => {
+    makeConnection = (room: String, setCallMembers: React.Dispatch<React.SetStateAction<number[]>>): boolean => {
         if (this.ws.readyState === WebSocket.OPEN) {
             console.log('Connected -> sending negotiations',);
+            this.setCallMembers = setCallMembers
             this.sendOneToAllNegotiation(HANDLE_CONNECTION_ACTION, room, this.client_id)
             return true;
         } else {
@@ -125,7 +127,8 @@ export class RTCSocket {
             }
         };
         this.connections.set(requester_id, connection);
-        this.updateTracks()
+        this.updateTracks(requester_id)
+        this.setCallMembers ? this.setCallMembers(members => [...Array.from(new Set([...members, requester_id]))]) : console.error("Didnt set call mebers")
         connection = this.connections.get(requester_id) || new RTCPeerConnection();
 
         // Send an offer to the peer
@@ -167,7 +170,8 @@ export class RTCSocket {
         } else {
             console.error("No connection>? Retrying")
             this.connections.set(requester, new RTCPeerConnection())
-            this.updateTracks()
+            this.updateTracks(requester)
+            this.setCallMembers ? this.setCallMembers(members => [...Array.from(new Set([...members, requester]))]) : console.error("Didnt set call mebers")
             this.processOffer(requester, room, remoteOffer)
         }
     }
@@ -217,24 +221,22 @@ export class RTCSocket {
 
 
 
-    setTracks = (gotRemoteStream: (e: any) => void, stream: MediaStream,) => {
-        this.updateTracks = () => {
+    setTracks = (gotRemoteStream: (e: any, id: number) => void, stream: MediaStream,) => {
+        const extendedGotRemoteStream = (id: number) => (e: any) => {
+            gotRemoteStream(e, id)
+        }
+
+        this.updateTracks = (id: number) => {
+            const connection = this.connections.get(id)
             stream.getTracks().forEach(track => {
-                // Loop through all connections and ad the tracks
-                this.connections.forEach((connection, id) => {
+                // Add the Add the track and add a listenr
+                if (connection) {
                     connection.addTrack(track, stream);
+                    // Loop through all tracks and then set the stream handler
+                    connection.ontrack = extendedGotRemoteStream(id)
                     this.connections.set(id, connection)
-                })
-
-                // connection.addTrack(track, stream)
+                }
             })
-
-            // Loop through all tracks and then set the stream handler
-            this.connections.forEach((connection, id) => {
-                connection.ontrack = gotRemoteStream
-                this.connections.set(id, connection)
-            })
-
         }
     }
 

@@ -1,7 +1,7 @@
 import React from 'react'
 
 interface Props {
-    videoRef: React.RefObject<HTMLVideoElement>,
+    videoRef: (element: HTMLVideoElement | null) => HTMLVideoElement | null,
     canPlay?: () => void,
     self?: boolean
 }
