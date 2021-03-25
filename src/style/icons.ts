@@ -1,4 +1,4 @@
-import { CgSearch, CgClose, CgEye, CgMathPlus, CgUserList } from 'react-icons/cg';
+import { CgSearch, CgClose, CgEye, CgMathPlus, CgUserList, CgComment, CgArrowRightO } from 'react-icons/cg';
 import { GenIcon, IconType } from 'react-icons/lib';
 
 // Icon packs can easily be switched out here
@@ -7,7 +7,8 @@ export const CancelIcon = CgClose;
 export const ViewIcon = CgEye;
 export const PlusIcon = CgMathPlus;
 export const ContactsIcon = CgUserList;
-
+export const MessageIcon = CgComment;
+export const SendIcon = CgArrowRightO;
 // Custom Pilot Icon from SVG using react Icons to generate a JSX Element
 export const PilotIcon: IconType = function GsaPilot(props) {
   return GenIcon({

@@ -1,28 +1,42 @@
-import { Button, Flex, Menu, MenuItemProps, MenuShorthandKinds, ShorthandCollection } from '@fluentui/react-northstar'
+import { Button, Flex, Menu, MenuItemProps, MenuShorthandKinds, ShorthandCollection, Chat } from '@fluentui/react-northstar'
 import React, { useContext, useEffect, useState } from 'react'
 import { useGetVideoChannelQuery } from '../api/videoQueries'
+import { useGetTextChannelQuery } from '../api/messageQueries'
 import { VideoCall } from '../components/video/VideoCall'
 import { CancelIcon } from '../style/icons'
 import { gsaTheme } from '../style/theme'
 import { makeAction } from '../utils/MakeAction'
 import CenteredPage from './templates/CenteredPage'
 import { SocketContext } from '../components/app/SocketProvider'
+import { ChatWindow } from '../components/chat/ChatWindow'
 interface Props {
 
 }
 
 export const VideoPage: React.FC<Props> = ({ children }) => {
     const { data, error, isFetching } = useGetVideoChannelQuery();
+    const { data: textChanData, error: textChanError, isFetching: textChanIsFetching } = useGetTextChannelQuery();
+    // const { data: textChanData, error: textChanError, isFetching: textChanIsFetching } = useGetTextChannelQuery();
     const [selectedRoom, setSelectedRoom] = useState<undefined | String>(undefined)
     const socketContext = useContext(SocketContext)
+    const [selectedTextChan, setSelectedTextChan] = useState<[number, String] | undefined>(undefined)
 
-    const divider = {
-        key: 'divider',
+    const divider = (id: number) => ({
+        key: 'divider' + id,
         kind: 'divider',
-    }
+    })
 
+    const textChanMenu: ShorthandCollection<MenuItemProps, MenuShorthandKinds> = [
+        {
+            key: 'heading1',
+            content: "Text Channels",
+            kind: "divider",
 
-    const defaultMenu: ShorthandCollection<MenuItemProps, MenuShorthandKinds> = [
+        },
+        divider(1),
+    ]
+
+    const vidChanMenu: ShorthandCollection<MenuItemProps, MenuShorthandKinds> = [
 
         {
             key: 'heading2',
@@ -30,11 +44,14 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
             kind: "divider",
 
         },
-        divider,
+        divider(2),
     ]
 
 
-    const [menuItems, setMenuItems] = useState(defaultMenu)
+
+
+
+    const [menuItems, setMenuItems] = useState(vidChanMenu)
 
     const setRoom = (room: String) => {
         socketContext?.socket?.current?.joinVidChan(room, (action) => {
@@ -44,23 +61,34 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
     }
 
     useEffect(() => {
-        if (data) {
-            setMenuItems([...defaultMenu, ...data.map((channel) => ({
-                key: channel.video_channel_id,
-                content: channel.channel_name,
-                action: () => {
-                    setRoom(channel.channel_name)
-                },
-                children: makeAction,
-            }))])
+        if (data && textChanData) {
+            setMenuItems([
+                ...textChanMenu,
+                ...textChanData.map((channel) => ({
+                    key: channel.text_channel_id,
+                    content: channel.channel_name,
+                    action: () => {
+                        setSelectedTextChan([channel.text_channel_id, channel.channel_name])
+                    },
+                    children: makeAction,
+                })),
+                ...vidChanMenu,
+                ...data.map((channel) => ({
+                    key: channel.video_channel_id,
+                    content: channel.channel_name,
+                    action: () => {
+                        setRoom(channel.channel_name)
+                    },
+                    children: makeAction,
+                }))])
         }
-    }, [data])
+    }, [data, textChanData])
 
 
 
     useEffect(() => {
         return () => {
-            socketContext?.socket?.current?.clearHandler("ROOM_JOIN")
+            socketContext?.socket?.current?.clearHandler("ROOM_JOIN");;
         }
     }, [])
 
@@ -75,13 +103,13 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
                         pointing
                         vertical
                     />
-                    <Button onClick={() => { }} styles={{
-                        alignSelf: 'flex-end', position: 'absolute', top: '1rem', right: '-1rem', ':hover': {
-                            backgroundColor: gsaTheme.siteVariables.colors.grey['100'],
-                        },
-                    }} icon={<CancelIcon />} iconOnly title="Close" circular />
+
                 </Flex>
-                <VideoCall selectedRoom={selectedRoom}></VideoCall>
+                {selectedTextChan !== undefined ? (
+                    <ChatWindow selectedTextChan={selectedTextChan} setSelectedTextChan={setSelectedTextChan} />
+                ) : ""}
+
+                {/* <VideoCall selectedRoom={selectedRoom}></VideoCall> */}
             </Flex>
         </>
     )

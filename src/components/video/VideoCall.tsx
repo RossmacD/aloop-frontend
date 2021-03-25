@@ -1,6 +1,7 @@
-import { Button } from '@fluentui/react-northstar'
+import { Button, Grid } from '@fluentui/react-northstar'
 import React, { useEffect, useRef, useState, useContext } from 'react'
 import { useRefArrayCallback } from '../../utils/useRefCallback';
+import { AuthUserContext } from '../app/App';
 import { SocketContext } from '../app/SocketProvider';
 import { VideoPanel } from './VideoPanel';
 // import { makeConnection, localConnection, client } from '../../utils/sockets/socket';!!!
@@ -10,11 +11,12 @@ interface Props {
 }
 
 export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
+    const authcontext = useContext(AuthUserContext)
     const videoRef = useRef<HTMLVideoElement>(null);
     const [incomingVidRef, setIncomingVidRef] = useRefArrayCallback<HTMLVideoElement>(
         (vidRef) => {
             if (vidRef.current) {
-                console.log("processing vidref")
+                console.log("processing vidref");
                 processVidRef(vidRef)
             } else {
                 console.error("No process bruh")
@@ -25,7 +27,7 @@ export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
         },
         []);
     // const [streamOut, setStream] = useState<MediaStream>()
-    const [inCall, setInCall] = useState(false)
+    const [inCall, setInCall] = useState(false);
     const [callMessage, setCallMessage] = useState<string>("")
     const [callMembers, setCallMembers] = useState<number[]>([])
     interface QMSG {
@@ -105,28 +107,27 @@ export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
         }
     }
 
-    useEffect(() => {
-        //     // This processes the queue as members come in, this is done becuase members can be added after the stream attempts to add the tracks and so may need to be reproccessed on a new item
-        //     for (const message of vidQueue) {
-        //         if (incomingVidRef.current[message.id]) {
-        //             gotRemoteStream(message.e, message.id);
-        //             setVidQueue((queue) => {
-        //                 return [...queue.splice(message.id, 1)]
-        //             })
-        //         }
-        //         // console.log("processing msg:", message)
-        //         // const index = Array.from(callMembers).indexOf(message.id)
-        //         // if (index !== -1) {
-        //         //              // }
-        console.log("added CallMember", callMembers)
-    }, [callMembers])
+    // useEffect(() => {
+    //     //     // This processes the queue as members come in, this is done becuase members can be added after the stream attempts to add the tracks and so may need to be reproccessed on a new item
+    //     //     for (const message of vidQueue) {
+    //     //         if (incomingVidRef.current[message.id]) {
+    //     //             gotRemoteStream(message.e, message.id);
+    //     //             setVidQueue((queue) => {
+    //     //                 return [...queue.splice(message.id, 1)]
+    //     //             })
+    //     //         }
+    //     //         // console.log("processing msg:", message)
+    //     //         // const index = Array.from(callMembers).indexOf(message.id)
+    //     //         // if (index !== -1) {
+    //     //         //              // }
+    //     console.log("added CallMember", callMembers)
+    // }, [callMembers])
 
-    // ()=>setIncomingVidRef(node)
 
 
     const disconnectCall = () => {
         //emptyTracks
-        socketContext?.socket?.current?.emptyTracks()
+        socketContext?.socket?.current?.emptyTracks();;
     }
 
     useEffect(() => {
@@ -139,20 +140,19 @@ export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
 
 
     return (
-        <div>
+        <Grid>
             <div style={{ position: "relative" }}>
                 <video ref={videoRef} onCanPlay={canPlay} id="player" autoPlay playsInline muted width="426" height="240" />
-                <p style={{ position: "absolute", color: 'green', top: 10, left: 10 }}>Your Name: {"client"}</p>
+                <p style={{ position: "absolute", color: 'green', top: 10, left: 10 }}>{`${authcontext?.selfState.user?.first_name || ""} ${authcontext?.selfState.user?.last_name || ""}`}</p>
             </div>
 
             {callMembers.map((member) =>
             (
                 <>
                     <VideoPanel videoRef={setIncomingVidRef(member)} key={member} />
-                    <p>NEWCAMERA</p>
                 </>)
             )}
             <p>{callMessage}</p>
-        </div>
+        </Grid>
     )
 }
