@@ -1,4 +1,4 @@
-import { TEXT_CHANNEL_MESSAGES_CACHE_KEY } from '../../api/messageQueries'
+import { MessageRes, TEXT_CHANNEL_MESSAGES_CACHE_KEY } from '../../api/messageQueries'
 import { queryClient } from '../../components/app/App'
 import { BASE_SOCKET_URL } from '../../config'
 type ActionHandler = (json: any) => void
@@ -34,6 +34,11 @@ export class RTCSocket {
     actionHandlers: { [key: string]: ActionHandler }
     updateTracks = (id: number) => { }
     setCallMembers?: React.Dispatch<React.SetStateAction<number[]>>;
+    setUnseenCounter?: React.Dispatch<React.SetStateAction<number[]>>
+
+    changeSetUnseetCounter = (counterFunc: React.Dispatch<React.SetStateAction<number[]>> | undefined) => {
+        this.setUnseenCounter = counterFunc
+    }
 
     constructor(client_id: number) {
         this.ws = new WebSocket(`${BASE_SOCKET_URL}/signalling/`);
@@ -86,6 +91,22 @@ export class RTCSocket {
                         }
                         break;
                     case MESSAGE_ACTION:
+                        // Optimisticly update the frontend
+                        queryClient.setQueryData<MessageRes[]>([TEXT_CHANNEL_MESSAGES_CACHE_KEY, json.message.text_channel_id], old => old ? [...old, json.message] : [])
+                        // Add to unseen notifications
+                        if (this.setUnseenCounter) {
+                            this.setUnseenCounter((oldCounter) => {
+                                if (oldCounter[json.message.text_channel_id]) {
+                                    oldCounter[json.message.text_channel_id] = oldCounter[json.message.text_channel_id]++
+                                } else {
+                                    oldCounter[json.message.text_channel_id] = 1
+                                }
+                                return [...oldCounter]
+                            })
+                        }
+
+
+                        // Invalidate data and refresh
                         queryClient.invalidateQueries([TEXT_CHANNEL_MESSAGES_CACHE_KEY, json.message.text_channel_id])
                         break
                     default:

@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react'
+import React, { SyntheticEvent, useContext, useRef, useState } from 'react'
 import { Flex, Chat, Button, ChatItemProps, ShorthandCollection, Input } from "@fluentui/react-northstar"
 import { CancelIcon, MessageIcon, SendIcon } from '../../style/icons'
 import { gsaTheme } from '../../style/theme'
@@ -14,8 +14,8 @@ export const ChatWindow: React.FC<Props> = ({ children, setSelectedTextChan, sel
     const { data, error, isFetching } = useGetTextChannelMessagesQuery(selectedTextChan[0]);
     const { mutate } = useNewMessageQuery();
     const authContext = useContext(AuthUserContext)
-    const messageInput = useRef<HTMLInputElement | null>(null)
-
+    // const messageInput = useRef<HTMLInputElement | null>(null)
+    const [text, setText] = useState<string>('')
 
 
     const mapDataToItems = (data: MessageRes[] | undefined): ShorthandCollection<ChatItemProps> => {
@@ -30,22 +30,36 @@ export const ChatWindow: React.FC<Props> = ({ children, setSelectedTextChan, sel
     }
 
     const sendMessage = () => {
-        if (messageInput?.current?.value) {
+        if (text) {
             mutate({
-                contents: messageInput.current.value,
+                contents: text,
                 text_channel_id: selectedTextChan[0]
             })
-            messageInput.current.value = ""
+            setText("")
         } else {
             console.log("No value")
         }
     }
 
     return (
-        <Flex style={{ width: '20rem', height: '100%', position: "relative", top: 0, left: 0, flexDirection: "column" }}>
+        <Flex style={{ width: '24rem', height: '100%', position: "relative", top: 0, left: 0, flexDirection: "column" }}>
             <Chat style={{ width: "100%", padding: 0, flex: 1, overflowY: 'scroll', flexDirection: 'column-reverse' }} items={mapDataToItems(data).reverse()} />
             <Flex style={{ width: "100%", padding: "1rem 0 1rem 0", backgroundColor: gsaTheme.siteVariables.colors.grey['100'] }} >
-                <Input fluid placeholder="Search..." iconPosition="start" icon={<MessageIcon />} ref={messageInput} />
+                <Input
+                    fluid
+                    placeholder={"Message " + selectedTextChan[1]}
+                    iconPosition="start"
+                    icon={<MessageIcon />}
+                    value={text}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            sendMessage()
+                        }
+                    }}
+                    onChange={(e) => {
+                        const event = e as SyntheticEvent<HTMLInputElement, Event>;
+                        setText(event?.currentTarget?.value || "")
+                    }} />
                 <Button
                     onClick={sendMessage}
                     icon={<SendIcon />} iconOnly title="Send" circular />

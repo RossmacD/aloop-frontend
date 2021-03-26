@@ -1,4 +1,4 @@
-import { Button, Flex, Menu, MenuItemProps, MenuShorthandKinds, ShorthandCollection, Chat } from '@fluentui/react-northstar'
+import { Button, Flex, Menu, MenuItemProps, MenuShorthandKinds, ShorthandCollection, Chat, Text, Label } from '@fluentui/react-northstar'
 import React, { useContext, useEffect, useState } from 'react'
 import { useGetVideoChannelQuery } from '../api/videoQueries'
 import { useGetTextChannelQuery } from '../api/messageQueries'
@@ -20,7 +20,7 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
     const [selectedRoom, setSelectedRoom] = useState<undefined | String>(undefined)
     const socketContext = useContext(SocketContext)
     const [selectedTextChan, setSelectedTextChan] = useState<[number, String] | undefined>(undefined)
-
+    const [unseenCounter, setUnseenCounter] = useState<number[]>([])
     const divider = (id: number) => ({
         key: 'divider' + id,
         kind: 'divider',
@@ -66,9 +66,24 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
                 ...textChanMenu,
                 ...textChanData.map((channel) => ({
                     key: channel.text_channel_id,
-                    content: channel.channel_name,
+                    content: (
+                        <Text content={(<>
+                            {channel.channel_name}
+                            {unseenCounter[channel.text_channel_id] && unseenCounter[channel.text_channel_id] > 0 ? <Label
+                                styles={{ position: "absolute", right: "0.1rem" }}
+                                content={unseenCounter[channel.text_channel_id]}
+                                // color={""}
+                                circular
+                            /> : ""}
+                        </>)} >
+
+                        </Text>),
                     action: () => {
                         setSelectedTextChan([channel.text_channel_id, channel.channel_name])
+                        setUnseenCounter(oldCounter => {
+                            oldCounter[channel.text_channel_id] = 0
+                            return [...oldCounter]
+                        })
                     },
                     children: makeAction,
                 })),
@@ -84,11 +99,11 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
         }
     }, [data, textChanData])
 
-
-
     useEffect(() => {
+        socketContext?.socket?.current?.changeSetUnseetCounter(setUnseenCounter);
         return () => {
-            socketContext?.socket?.current?.clearHandler("ROOM_JOIN");;
+            socketContext?.socket?.current?.clearHandler("ROOM_JOIN");
+            socketContext?.socket?.current?.changeSetUnseetCounter(undefined);
         }
     }, [])
 
@@ -114,13 +129,3 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
         </>
     )
 }
-
-
-
-// <CenteredPage>
-//         {/* <SidePanel> */ }
-// {/* <VideoRooms data={data} error={error} isFetching={isFetching} setRoom={setRoom} /> */ }
-// {/* {selectedRoom} */ }
-// {/* </SidePanel> */ }
-// {/* <VideoCall /> */ }
-//     // </CenteredPage >
