@@ -21,7 +21,10 @@ export const ChatWindow: React.FC<Props> = ({ children, setSelectedTextChan, sel
     const mapDataToItems = (data: MessageRes[] | undefined): ShorthandCollection<ChatItemProps> => {
         return data?.map((message) => ({
             message: (
-                <Chat.Message content={message.contents} author={message.author_id} timestamp={message.created_at} mine={message.author_id === authContext?.selfState.user?.user_id} />
+                <Chat.Message content={message.contents}
+                    author={message.author_id}
+                    timestamp={new Date(Date.parse(message.created_at)).toLocaleString()}
+                    mine={message.author_id === authContext?.selfState.user?.user_id} />
             ),
             // contentPosition: message.author_id === authContext?.selfState.user?.user_id ? 'end' : 'start',
             attached: 'top',

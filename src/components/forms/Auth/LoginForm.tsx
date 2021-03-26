@@ -66,7 +66,7 @@ export const LoginForm: React.FC<Props> = ({ children }) => {
         }
     }
 
-    return (<FormTemplate success={success} fetching={isLoading} onSubmit={handleSubmit(attemptLogin)}>
+    return (<FormTemplate success={success} fetching={isLoading} onSubmit={handleSubmit(attemptLogin)} to={"/video"}>
         {MakeForm([
             { id: "email", type: 'email', validation: emailValidation },
             { id: "password", type: 'password', validation: passwordValidation }

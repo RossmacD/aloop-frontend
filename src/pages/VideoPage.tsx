@@ -37,7 +37,6 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
     ]
 
     const vidChanMenu: ShorthandCollection<MenuItemProps, MenuShorthandKinds> = [
-
         {
             key: 'heading2',
             content: "Video Rooms",
@@ -46,10 +45,6 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
         },
         divider(2),
     ]
-
-
-
-
 
     const [menuItems, setMenuItems] = useState(vidChanMenu)
 

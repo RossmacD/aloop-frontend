@@ -19,7 +19,7 @@ export interface MessageRes {
   author_id: number,
   text_channel_id: number,
   seen: boolean,
-  created_at: String
+  created_at: string
 }
 
 
