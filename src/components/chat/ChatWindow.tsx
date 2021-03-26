@@ -29,7 +29,7 @@ export const ChatWindow: React.FC<Props> = ({ children, setSelectedTextChan, sel
 
     return (
         <Flex style={{ width: '20rem', height: '100%', position: "relative", top: 0, left: 0, flexDirection: "column" }}>
-            <Chat style={{ width: "100%", height: "90%", padding: 0, flex: 1 }} items={mapDataToItems(data)} />
+            <Chat style={{ width: "100%", padding: 0, flex: 1, overflowY: 'scroll', flexDirection: 'column-reverse' }} items={mapDataToItems(data).reverse()} />
             <Flex style={{ width: "100%", padding: "1rem 0 1rem 0", backgroundColor: gsaTheme.siteVariables.colors.grey['100'] }} >
                 <Input fluid placeholder="Search..." iconPosition="start" icon={<MessageIcon />} />
                 <Button icon={<SendIcon />} iconOnly title="Send" circular />

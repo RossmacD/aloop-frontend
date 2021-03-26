@@ -1,3 +1,5 @@
+import { TEXT_CHANNEL_MESSAGES_CACHE_KEY } from '../../api/messageQueries'
+import { queryClient } from '../../components/app/App'
 import { BASE_SOCKET_URL } from '../../config'
 type ActionHandler = (json: any) => void
 const HANDLE_CONNECTION_ACTION = 'HANDLE_COLLECTION'
@@ -5,7 +7,7 @@ const OFFER_ACTION = "OFFER"
 const CANDIDATE_ACTION = "CANDIDATE"
 const ANSWER_ACTION = "ANSWER"
 type Actions = typeof CANDIDATE_ACTION | typeof OFFER_ACTION | typeof ANSWER_ACTION | typeof HANDLE_CONNECTION_ACTION
-
+const MESSAGE_ACTION = "NEW_MESSAGE"
 
 interface OneToOneData {
     protocol: '1:1',
@@ -83,6 +85,9 @@ export class RTCSocket {
                             this.connections.set(json.from, connection)
                         }
                         break;
+                    case MESSAGE_ACTION:
+                        queryClient.invalidateQueries([TEXT_CHANNEL_MESSAGES_CACHE_KEY, json.message.text_channel_id])
+                        break
                     default:
                         for (const handler in this.actionHandlers) {
                             console.log("Attempting handler", handler)

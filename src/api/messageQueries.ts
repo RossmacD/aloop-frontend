@@ -5,7 +5,7 @@ import { queryClient } from '../components/app/App';
 const NEW_MESSAGE_PATH = 'message/new'
 
 const TEXT_CHANNEL_CACHE_KEY = 'text_channel';
-const TEXT_CHANNEL_MESSAGES_CACHE_KEY = 'text_channel_messages';
+export const TEXT_CHANNEL_MESSAGES_CACHE_KEY = 'text_channel_messages';
 
 export interface TextChannelRes {
   text_channel_id: number;
@@ -60,7 +60,11 @@ const getTextChannelMessages = async (chan_id: number) =>
     });
 
 
-const postMessage = async (messageInput: MessageInput) => postFetch<MessageInput>(NEW_MESSAGE_PATH, messageInput);
+const postMessage = async (messageInput: MessageInput) => postFetch<MessageInput>(NEW_MESSAGE_PATH, messageInput).then((res) => res.json())
+  .catch((e) => {
+    console.error('POST REQUEST ERROR', e);
+    throw e;
+  });;
 
 
 
@@ -73,11 +77,15 @@ export const useGetTextChannelQuery = () =>
 export const useGetTextChannelMessagesQuery = (chan_id: number) =>
   useQuery<MessageRes[]>([TEXT_CHANNEL_MESSAGES_CACHE_KEY, chan_id], () => getTextChannelMessages(chan_id));
 
-// export const useNewMessageQuery = () =>
-//   useMutation(postMessage, {
-//     onSuccess: (data) => {
-//       if (data.message_id) {
-//         queryClient.setQueryData<MessageRes>([TEXT_CHANNEL_MESSAGES_CACHE_KEY, data.message_id], data)
-//       }
-//     },
-//   });
+export const useNewMessageQuery = () =>
+  useMutation<MessageRes, Error, MessageInput, any>(postMessage, {
+    onSuccess: (data) => {
+      queryClient.setQueryData<MessageRes>(['Messages', data.message_id], data)
+    },
+    // Always refetch after error or success:
+    onSettled: (newMessage) => {
+      if (newMessage) {
+        queryClient.invalidateQueries([TEXT_CHANNEL_MESSAGES_CACHE_KEY, newMessage.text_channel_id])
+      }
+    },
+  });
