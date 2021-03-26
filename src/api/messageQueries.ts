@@ -2,7 +2,7 @@ import { useMutation, useQuery } from 'react-query';
 import { getFetch, postFetch } from './defaults';
 import { queryClient } from '../components/app/App';
 
-const NEW_MESSAGE_PATH = 'message/new'
+const NEW_MESSAGE_PATH = '/message/new'
 
 const TEXT_CHANNEL_CACHE_KEY = 'text_channel';
 export const TEXT_CHANNEL_MESSAGES_CACHE_KEY = 'text_channel_messages';
@@ -83,9 +83,9 @@ export const useNewMessageQuery = () =>
       queryClient.setQueryData<MessageRes>(['Messages', data.message_id], data)
     },
     // Always refetch after error or success:
-    onSettled: (newMessage) => {
-      if (newMessage) {
-        queryClient.invalidateQueries([TEXT_CHANNEL_MESSAGES_CACHE_KEY, newMessage.text_channel_id])
-      }
-    },
+    // onSettled: (newMessage) => {
+    //   if (newMessage) {
+    //     queryClient.invalidateQueries([TEXT_CHANNEL_MESSAGES_CACHE_KEY, newMessage.text_channel_id])
+    //   }
+    // },
   });
