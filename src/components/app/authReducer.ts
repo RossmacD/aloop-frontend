@@ -6,6 +6,7 @@ export type User = {
   first_name: String;
   last_name: String;
   email: String;
+  role_id: number
 };
 
 export interface AuthState {
@@ -36,12 +37,12 @@ export const authReducer = (state: AuthState, action: ReducerAction): AuthState 
     case LOGIN:
       console.log(action);
       // Seperate the api_token from the user, add to state
-      const user  = action.payload;
-      if(user?.user_id){
+      const user = action.payload;
+      if (user?.user_id) {
         console.log("addingSocket")
         action.connectWebsocket(user?.user_id)
-      }else{
-        console.log("FUCK",action)
+      } else {
+        console.log("FUCK", action)
       };
       return { ...state, auth: true, user };
     case LOGOUT:

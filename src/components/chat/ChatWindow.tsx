@@ -46,7 +46,7 @@ export const ChatWindow: React.FC<Props> = ({ children, setSelectedTextChan, sel
 
     return (
         <Flex style={{ width: '24rem', height: '100%', position: "relative", top: 0, left: 0, flexDirection: "column" }}>
-            <Chat style={{ width: "100%", padding: 0, flex: 1, overflowY: 'scroll', flexDirection: 'column-reverse' }} items={mapDataToItems(data).reverse()} />
+            <Chat style={{ width: "100%", padding: 0, flex: 1, overflowY: 'scroll', flexDirection: 'column-reverse' }} items={mapDataToItems(data).reverse().slice(0, 10)} />
             <Flex style={{ width: "100%", padding: "1rem 0 1rem 0", backgroundColor: gsaTheme.siteVariables.colors.grey['100'] }} >
                 <Input
                     fluid

@@ -65,5 +65,5 @@ export const useLoginQuery = () =>
     onSuccess: (data) => queryClient.setQueryData(SELF_CACHE_KEY, data),
   });
 
-export const useGetSelfQuery = () => useQuery(SELF_CACHE_KEY, getSelf);
+export const useGetSelfQuery = () => useQuery(SELF_CACHE_KEY, getSelf, { retry: false });
 export const useGetUsers = () => useQuery(USER_CACHE_KEY, getUsers);

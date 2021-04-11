@@ -1,24 +1,26 @@
-import { Button, Flex, Menu, MenuItemProps, MenuShorthandKinds, ShorthandCollection, Chat, Text, Label } from '@fluentui/react-northstar'
-import React, { useContext, useEffect, useState } from 'react'
+import { MenuButton, Button, Flex, Menu, MenuItemProps, MenuShorthandKinds, ShorthandCollection, Chat, Text, Label } from '@fluentui/react-northstar'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useGetVideoChannelQuery } from '../api/videoQueries'
 import { useGetTextChannelQuery } from '../api/messageQueries'
 import { VideoCall } from '../components/video/VideoCall'
-import { CancelIcon } from '../style/icons'
+import { CancelIcon, MessageChannelIcon, VertMenuIcon } from '../style/icons'
 import { gsaTheme } from '../style/theme'
-import { makeAction } from '../utils/MakeAction'
+import { makeAction, makeMenuAction } from '../utils/MakeAction'
 import CenteredPage from './templates/CenteredPage'
 import { SocketContext } from '../components/app/SocketProvider'
 import { ChatWindow } from '../components/chat/ChatWindow'
+import { AuthUserContext } from '../components/app/App'
 interface Props {
 
 }
 
 export const VideoPage: React.FC<Props> = ({ children }) => {
-    const { data, error, isFetching } = useGetVideoChannelQuery();
+    const { data: vidChanData, error, isFetching } = useGetVideoChannelQuery();
     const { data: textChanData, error: textChanError, isFetching: textChanIsFetching } = useGetTextChannelQuery();
     // const { data: textChanData, error: textChanError, isFetching: textChanIsFetching } = useGetTextChannelQuery();
     const [selectedRoom, setSelectedRoom] = useState<undefined | String>(undefined)
     const socketContext = useContext(SocketContext)
+    const authContext = useContext(AuthUserContext);
     const [selectedTextChan, setSelectedTextChan] = useState<[number, String] | undefined>(undefined)
     const [unseenCounter, setUnseenCounter] = useState<number[]>([])
     const divider = (id: number) => ({
@@ -26,7 +28,7 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
         kind: 'divider',
     })
 
-    const textChanMenu: ShorthandCollection<MenuItemProps, MenuShorthandKinds> = [
+    const textChanMenu: ShorthandCollection<MenuItemProps, MenuShorthandKinds> = useMemo(() => [
         {
             key: 'heading1',
             content: "Text Channels",
@@ -34,9 +36,9 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
 
         },
         divider(1),
-    ]
+    ], [])
 
-    const vidChanMenu: ShorthandCollection<MenuItemProps, MenuShorthandKinds> = [
+    const vidChanMenu: ShorthandCollection<MenuItemProps, MenuShorthandKinds> = useMemo(() => [
         {
             key: 'heading2',
             content: "Video Rooms",
@@ -44,35 +46,30 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
 
         },
         divider(2),
-    ]
+    ], [])
 
-    const [menuItems, setMenuItems] = useState(vidChanMenu)
+    const [textMenuItems, setTextMenuItems] = useState(textChanMenu)
+    const [vidMenuItems, setVidMenuItems] = useState(vidChanMenu)
 
-    const setRoom = (room: String) => {
+    const setRoom = useMemo(() => (room: String) => {
         socketContext?.socket?.current?.joinVidChan(room, (action) => {
             console.log("Selecting room:", `${room}`)
             setSelectedRoom(`#?${room}`)
         })
-    }
+    }, [socketContext?.socket])
 
     useEffect(() => {
-        if (data && textChanData) {
-            setMenuItems([
+        if (textChanData && authContext?.selfState.user) {
+            setTextMenuItems([
                 ...textChanMenu,
                 ...textChanData.map((channel) => ({
                     key: channel.text_channel_id,
+                    icon: <MessageChannelIcon />,
+                    role_id: authContext?.selfState.user?.role_id,
+                    unseen: unseenCounter[channel.text_channel_id],
                     content: (
-                        <Text content={(<>
-                            {channel.channel_name}
-                            {unseenCounter[channel.text_channel_id] && unseenCounter[channel.text_channel_id] > 0 ? <Label
-                                styles={{ position: "absolute", right: "0.1rem" }}
-                                content={unseenCounter[channel.text_channel_id]}
-                                // color={""}
-                                circular
-                            /> : ""}
-                        </>)} >
-
-                        </Text>),
+                        <Text content={channel.channel_name} />
+                    ),
                     action: () => {
                         setSelectedTextChan([channel.text_channel_id, channel.channel_name])
                         setUnseenCounter(oldCounter => {
@@ -80,19 +77,31 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
                             return [...oldCounter]
                         })
                     },
-                    children: makeAction,
+                    children: makeMenuAction,
                 })),
+            ])
+        }
+    }, [textChanData, unseenCounter, authContext?.selfState.user, textChanMenu])
+
+
+    useEffect(() => {
+        if (vidChanData) {
+            setVidMenuItems(() => ({
                 ...vidChanMenu,
-                ...data.map((channel) => ({
+                ...vidChanData.map((channel) => ({
                     key: channel.video_channel_id,
                     content: channel.channel_name,
                     action: () => {
                         setRoom(channel.channel_name)
                     },
                     children: makeAction,
-                }))])
+                }))
+            }))
         }
-    }, [data, textChanData])
+    }, [setRoom, vidChanData, vidChanMenu])
+
+
+
 
     useEffect(() => {
         socketContext?.socket?.current?.changeSetUnseetCounter(setUnseenCounter);
@@ -100,16 +109,22 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
             socketContext?.socket?.current?.clearHandler("ROOM_JOIN");
             socketContext?.socket?.current?.changeSetUnseetCounter(undefined);
         }
-    }, [])
+    }, [socketContext?.socket])
 
 
     return (
         <>
             <Flex style={{ width: '100vw', height: '100vh' }}>
-                <Flex style={{ width: '16rem', position: 'relative', top: 0, left: 0, height: '100vh' }}>
+                <Flex style={{ width: '16rem', position: 'relative', top: 0, left: 0, height: '100vh', flexDirection: "column" }}>
                     <Menu
-                        styles={{ height: '100vh', width: '100%', backgroundColor: gsaTheme.siteVariables.colors.grey['50'] }}
-                        items={menuItems}
+                        styles={{ height: '50vh', width: '100%', backgroundColor: gsaTheme.siteVariables.colors.grey['50'] }}
+                        items={textMenuItems}
+                        pointing
+                        vertical
+                    />
+                    <Menu
+                        styles={{ height: '50vh', width: '100%', backgroundColor: gsaTheme.siteVariables.colors.grey['50'] }}
+                        items={vidMenuItems}
                         pointing
                         vertical
                     />

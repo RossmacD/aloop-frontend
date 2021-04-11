@@ -92,9 +92,12 @@ export class RTCSocket {
                         break;
                     case MESSAGE_ACTION:
                         // Optimisticly update the frontend
+                        console.log("UPdating messages")
                         queryClient.setQueryData<MessageRes[]>([TEXT_CHANNEL_MESSAGES_CACHE_KEY, json.message.text_channel_id], old => old ? [...old, json.message] : [])
                         // Add to unseen notifications
+
                         if (this.setUnseenCounter) {
+                            console.log("UPdating Counter")
                             this.setUnseenCounter((oldCounter) => {
                                 if (oldCounter[json.message.text_channel_id]) {
                                     oldCounter[json.message.text_channel_id] = oldCounter[json.message.text_channel_id]++
@@ -105,7 +108,7 @@ export class RTCSocket {
                             })
                         }
 
-
+                        console.log("Invalidatre")
                         // Invalidate data and refresh
                         queryClient.invalidateQueries([TEXT_CHANNEL_MESSAGES_CACHE_KEY, json.message.text_channel_id])
                         break

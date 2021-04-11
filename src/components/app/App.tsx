@@ -1,4 +1,4 @@
-import React, { createContext, useReducer } from 'react';
+import React, { createContext, useEffect, useReducer } from 'react';
 import './App.css';
 import { BrowserRouter } from 'react-router-dom';
 import { Button, Flex, Debug } from '@fluentui/react-northstar'
@@ -9,6 +9,8 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import { authReducer, UserAuthContext } from './authReducer';
 import { SocketProvider } from './SocketProvider'
+import { useGetSelfQuery } from '../../api/authQueries';
+import { StartupChecks } from '../StartupChecks';
 // The query client for react fetch
 export const queryClient = new QueryClient()
 
@@ -20,19 +22,27 @@ function App() {
     auth: false,
     user: null
   })
+
+
+
+
+
+
   return (
     <AuthUserContext.Provider value={{ selfState, dispatch }}>
       <SocketProvider>
         <QueryClientProvider client={queryClient}>
           <ReactQueryDevtools initialIsOpen={false} />
-          <BrowserRouter>
-            <IconContext.Provider value={{ size: '1.25rem' }}>
-              <Flex column>
-                <Router />
-                <Debug />
-              </Flex>
-            </IconContext.Provider>
-          </BrowserRouter>
+          <StartupChecks>
+            <BrowserRouter>
+              <IconContext.Provider value={{ size: '1.25rem' }}>
+                <Flex column>
+                  <Router />
+                  <Debug />
+                </Flex>
+              </IconContext.Provider>
+            </BrowserRouter>
+          </StartupChecks>
         </QueryClientProvider>
       </SocketProvider>
     </AuthUserContext.Provider>
