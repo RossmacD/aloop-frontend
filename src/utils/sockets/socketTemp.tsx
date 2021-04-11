@@ -1,6 +1,7 @@
 import { MessageRes, TEXT_CHANNEL_MESSAGES_CACHE_KEY } from '../../api/messageQueries'
 import { queryClient } from '../../components/app/App'
 import { BASE_SOCKET_URL } from '../../config'
+import { UnseenCounter } from '../../pages/VideoPage'
 type ActionHandler = (json: any) => void
 const HANDLE_CONNECTION_ACTION = 'HANDLE_COLLECTION'
 const OFFER_ACTION = "OFFER"
@@ -34,9 +35,9 @@ export class RTCSocket {
     actionHandlers: { [key: string]: ActionHandler }
     updateTracks = (id: number) => { }
     setCallMembers?: React.Dispatch<React.SetStateAction<number[]>>;
-    setUnseenCounter?: React.Dispatch<React.SetStateAction<number[]>>
+    setUnseenCounter?: React.Dispatch<React.SetStateAction<UnseenCounter>>
 
-    changeSetUnseetCounter = (counterFunc: React.Dispatch<React.SetStateAction<number[]>> | undefined) => {
+    changeSetUnseetCounter = (counterFunc: React.Dispatch<React.SetStateAction<UnseenCounter>> | undefined) => {
         this.setUnseenCounter = counterFunc
     }
 
@@ -92,7 +93,7 @@ export class RTCSocket {
                         break;
                     case MESSAGE_ACTION:
                         // Optimisticly update the frontend
-                        console.log("UPdating messages")
+                        console.log("UPdating messages", json.message.text_channel_id)
                         queryClient.setQueryData<MessageRes[]>([TEXT_CHANNEL_MESSAGES_CACHE_KEY, json.message.text_channel_id], old => old ? [...old, json.message] : [])
                         // Add to unseen notifications
 
@@ -100,16 +101,18 @@ export class RTCSocket {
                             console.log("UPdating Counter")
                             this.setUnseenCounter((oldCounter) => {
                                 if (oldCounter[json.message.text_channel_id]) {
-                                    oldCounter[json.message.text_channel_id] = oldCounter[json.message.text_channel_id]++
+                                    console.log("DOING IT Helll yesh")
+                                    oldCounter[json.message.text_channel_id] = oldCounter[json.message.text_channel_id] + 1
                                 } else {
                                     oldCounter[json.message.text_channel_id] = 1
                                 }
-                                return [...oldCounter]
+                                return { ...oldCounter }
                             })
                         }
 
                         console.log("Invalidatre")
                         // Invalidate data and refresh
+                        // DOing nothing????????????
                         queryClient.invalidateQueries([TEXT_CHANNEL_MESSAGES_CACHE_KEY, json.message.text_channel_id])
                         break
                     default:

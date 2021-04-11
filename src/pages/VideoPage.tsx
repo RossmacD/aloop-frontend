@@ -10,6 +10,7 @@ import CenteredPage from './templates/CenteredPage'
 import { SocketContext } from '../components/app/SocketProvider'
 import { ChatWindow } from '../components/chat/ChatWindow'
 import { AuthUserContext } from '../components/app/App'
+export interface UnseenCounter { [key: number]: number }
 interface Props {
 
 }
@@ -22,7 +23,7 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
     const socketContext = useContext(SocketContext)
     const authContext = useContext(AuthUserContext);
     const [selectedTextChan, setSelectedTextChan] = useState<[number, String] | undefined>(undefined)
-    const [unseenCounter, setUnseenCounter] = useState<number[]>([])
+    const [unseenCounter, setUnseenCounter] = useState<UnseenCounter>([])
     const divider = (id: number) => ({
         key: 'divider' + id,
         kind: 'divider',
@@ -74,7 +75,7 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
                         setSelectedTextChan([channel.text_channel_id, channel.channel_name])
                         setUnseenCounter(oldCounter => {
                             oldCounter[channel.text_channel_id] = 0
-                            return [...oldCounter]
+                            return { ...oldCounter }
                         })
                     },
                     children: makeMenuAction,
@@ -104,12 +105,17 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
 
 
     useEffect(() => {
-        socketContext?.socket?.current?.changeSetUnseetCounter(setUnseenCounter);
+        if (socketContext.socketReady && socketContext?.socket?.current) {
+            socketContext.socket.current.changeSetUnseetCounter(setUnseenCounter)
+            console.log("Successful update")
+        } else {
+            console.log("Didnt set thingy", socketContext.socketReady, socketContext?.socket?.current)
+        };
         return () => {
             socketContext?.socket?.current?.clearHandler("ROOM_JOIN");
             socketContext?.socket?.current?.changeSetUnseetCounter(undefined);
         }
-    }, [socketContext?.socket])
+    }, [socketContext?.socket, socketContext.socketReady])
 
 
     return (
