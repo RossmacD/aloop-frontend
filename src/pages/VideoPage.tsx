@@ -118,6 +118,15 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
     }, [socketContext?.socket, socketContext.socketReady])
 
 
+    useEffect(() => {
+        if (selectedTextChan && unseenCounter[selectedTextChan[0]] !== 0) {
+            setUnseenCounter(counter => {
+                counter[selectedTextChan[0]] = 0
+                return { ...counter }
+            })
+        }
+    }, [unseenCounter, selectedTextChan])
+
     return (
         <>
             <Flex style={{ width: '100vw', height: '100vh' }}>
