@@ -10,6 +10,11 @@ import CenteredPage from './templates/CenteredPage'
 import { SocketContext } from '../components/app/SocketProvider'
 import { ChatWindow } from '../components/chat/ChatWindow'
 import { AuthUserContext } from '../components/app/App'
+import { colors } from '../style/colors'
+
+
+
+
 export interface UnseenCounter { [key: number]: number }
 interface Props {
 
@@ -129,8 +134,12 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
 
     return (
         <>
-            <Flex style={{ width: '100vw', height: '100vh' }}>
+            <Flex style={{ width: '100vw', height: '100vh', backgroundColor: colors.grey["600"] }}>
                 <Flex style={{ width: '16rem', position: 'relative', top: 0, left: 0, height: '100vh', flexDirection: "column" }}>
+                    <Flex styles={{ width: "100%", padding: "1rem 0.5rem", backgroundColor: colors.grey["700"], justifyContent: "space-between", alignItems: "center" }}>
+                        <Text color={"white"}>Welcome {authContext?.selfState.user?.role_id}</Text>
+                        {authContext?.selfState.user?.role_id === 2 ? <Button primary styles={{ justifySelf: "flex-end" }}>Manage</Button> : ''}
+                    </Flex>
                     <Menu
                         styles={{ height: '50vh', width: '100%', backgroundColor: gsaTheme.siteVariables.colors.grey['50'] }}
                         items={textMenuItems}

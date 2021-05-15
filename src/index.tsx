@@ -5,6 +5,8 @@ import App from './components/app/App';
 import reportWebVitals from './reportWebVitals';
 import { gsaTheme } from './style/theme';
 import { Provider } from '@fluentui/react-northstar';
+import { bobbing } from './style/animations';
+gsaTheme.animations.bobbing = bobbing;
 
 ReactDOM.render(
   <React.StrictMode>

@@ -1,17 +1,17 @@
 export const contextualColors = {
   brand: {
-    50: '#93DC9C',
-    100: '#84D78D',
-    200: '#74D27F',
-    300: '#65CD71',
-    400: '#56C863',
-    450: '#46C355',
-    500: '#3BB54A',
-    600: '#37A944',
-    700: '#329A3E',
-    800: '#2d8B38',
-    900: '#287B32',
-    1000: '#143E19',
+    50: '#e6f1fe',
+    100: '#cce3fc',
+    200: '#80baf9',
+    300: '#66acf7',
+    400: '#3391f5',
+    450: '#1a83f3',
+    500: '#0075f2',
+    600: '#0069da',
+    700: '#005ec2',
+    800: '#004691',
+    900: '#002f61',
+    1000: '#001730',
   },
 };
 //["35853f","329a3e","b5b5b6","9b9b9b","ef476f","bb0a21","fde74c","e4572e"]
@@ -19,25 +19,25 @@ export const contextualColors = {
 export const naturalColors = {
   grey: {
     0: '#FFFFFF', // white
-    25: '#FCFCFB', // old $app-density-message-initial-hover-focus
+    25: '#ededed', // old $app-density-message-initial-hover-focus
     50: '#FAF9F8', // light14
-    100: '#F3F2F1', // light10, old $app-density-message-background-replay-hover-focus
-    150: '#EDEBE9', // light09, old $app-density-border-gray
-    200: '#E1DFDD', // light08
-    250: '#C8C6C4', // light06, dark02
-    300: '#B3B0AD', // dark03
-    350: '#979593', // light04
-    400: '#8A8886', // dark04
-    450: '#605E5C', // light03, dark06, $app-gray-20-theme-agnostic, old $message-highlight-color-darktheme
-    500: '#484644', // light02, dark08
-    550: '#3B3A39', // dark09
-    600: '#323131', // dark10, in call audio only grid slot 4
-    650: '#2D2C2C', // in call audio only grid slot 3
-    700: '#292828', // dark14, in call audio only grid slot 2, old $app-density-message-background-initial-hover-focus-darktheme
-    750: '#252423', // 900 - different [#252424] , old $app-black, in call audio only grid slot 1, old $app-density-message-background-replay-hover-focus-darktheme
-    800: '#201F1F', // app black darktheme, in call title bar, in call audio only pip
-    850: '#1B1A1A', // in call background behind presented doc, old $app-density-message-border-darktheme
-    900: '#11100F', // dark theme borders
+    100: '#dadbdc', // light10, old $app-density-message-background-replay-hover-focus
+    150: '#c8c9ca', // light09, old $app-density-border-gray
+    200: '#b5b7b9', // light08
+    250: '#a3a5a7', // light06, dark02
+    300: '#a3a5a7', // dark03
+    350: '#909295', // light04
+    400: '#7e8084', // dark04
+    450: '#6b6e72', // light03, dark06, $app-gray-20-theme-agnostic, old $message-highlight-color-darktheme
+    500: '#464a4f', // light02, dark08
+    550: '#3f4347', // dark09
+    600: '#383b3f', // dark10, in call audio only grid slot 4
+    650: '#313437', // in call audio only grid slot 3
+    700: '#2a2c2f', // dark14, in call audio only grid slot 2, old $app-density-message-background-initial-hover-focus-darktheme
+    750: '#232528', // 900 - different [#252424] , old $app-black, in call audio only grid slot 1, old $app-density-message-background-replay-hover-focus-darktheme
+    800: '#1c1e20', // app black darktheme, in call title bar, in call audio only pip
+    850: '#151618', // in call background behind presented doc, old $app-density-message-border-darktheme
+    900: '#0e0f10', // dark theme borders
     1000: '#000000', // black
   },
   orange: {
@@ -65,22 +65,23 @@ export const naturalColors = {
     900: '#1F191D', // new oof banner border dark theme
   },
   red: {
-    50: '#FCF4F6', // app red 10
-    100: '#F3D6D8', // postOrange[900] app red 08
-    200: '#F9526B', // new, error banner string
-    300: '#E73550', // merge old @app-red-dark-theme
-    400: '#C4314B', // red[900], app red 06, siteVariables.red
-    500: '#A72037', // app red 04
-    600: '#8E192E', // app red 02
-    700: '#4F222B', // old app red 10 dark
-    800: '#3E1F25', // new error banner bg
-    900: '#1E040A', // app red08 dark
+    50: '#f7e9ed', // app red 10
+    100: '#e6bdc8', // postOrange[900] app red 08
+    200: '#dda7b5', // new, error banner string
+    300: '#cd7b90', // merge old @app-red-dark-theme
+    400: '#bc4f6b', // red[900], app red 06, siteVariables.red
+
+    500: '#ab2346', // app red 04
+    600: '#9a203f', // app red 02
+    700: '#891c38', // old app red 10 dark
+    800: '#781931', // new error banner bg
+    900: '#561223', // app red08 dark
   },
   green: {
-    200: '#92C353', // lightGreen[900] old $app-green, available presence dark theme, siteVars.green
-    300: '#6BB700', // new Available presence
-    400: '#13A40E', // dual presence Available
-    600: '#237B4B', // old $app-green-04, siteVariables.green04, green[900]
+    200: '#beefcd', // lightGreen[900] old $app-green, available presence dark theme, siteVars.green
+    300: '#a9eabc', // new Available presence
+    400: '#93e5ab', // dual presence Available
+    600: '#76b789', // old $app-green-04, siteVariables.green04, green[900]
     700: undefined,
     800: undefined,
     900: undefined,
