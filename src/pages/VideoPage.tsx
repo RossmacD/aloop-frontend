@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useGetVideoChannelQuery } from '../api/videoQueries'
 import { useGetTextChannelQuery } from '../api/messageQueries'
 import { VideoCall } from '../components/video/VideoCall'
-import { CancelIcon, MessageChannelIcon, VertMenuIcon } from '../style/icons'
+import { CancelIcon, MessageChannelIcon, VertMenuIcon, VideoChannelIcon } from '../style/icons'
 import { gsaTheme } from '../style/theme'
 import { makeAction, makeMenuAction } from '../utils/MakeAction'
 import CenteredPage from './templates/CenteredPage'
@@ -92,17 +92,18 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
 
     useEffect(() => {
         if (vidChanData) {
-            setVidMenuItems(() => ({
+            setVidMenuItems([
                 ...vidChanMenu,
                 ...vidChanData.map((channel) => ({
-                    key: channel.video_channel_id,
+                    key: "vidChan:" + channel.video_channel_id,
+                    icon: <VideoChannelIcon />,
                     content: channel.channel_name,
                     action: () => {
                         setRoom(channel.channel_name)
                     },
                     children: makeAction,
                 }))
-            }))
+            ])
         }
     }, [setRoom, vidChanData, vidChanMenu])
 
