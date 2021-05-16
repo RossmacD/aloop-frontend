@@ -76,4 +76,4 @@ export const useLoginQuery = () =>
   });
 
 export const useGetSelfQuery = () => useQuery(SELF_CACHE_KEY, getSelf, { retry: false });
-export const useGetUsers = () => useQuery(USER_CACHE_KEY, getUsers);
+export const useGetUsers = () => useQuery<UserRes[]>(USER_CACHE_KEY, getUsers);

@@ -69,6 +69,28 @@ export const useNewTextChannelQuery = () =>
 
 
 
+const addUserTextChannel = async ({ chan_id, user }: { chan_id: number, user: UserRes }): Promise<[number, UserRes]> =>
+  getFetch(`/textchan/add/${chan_id}/${user.user_id}`)
+    .then((res) => {
+      console.log(res);
+      if (res.ok) {
+        const returnVal: [number, UserRes] = [chan_id, user]
+        return returnVal;
+      } else {
+        throw new Error('Authentication Error');
+      }
+    })
+    .catch((e) => {
+      console.error('POST REQUEST ERROR', e);
+      throw e;
+    });
+
+export const useAddUserTextChannelQuery = () => useMutation<[number, UserRes], Error, { chan_id: number, user: UserRes }, any>(
+  addUserTextChannel, {
+  onSuccess: (data) => {
+    queryClient.setQueryData<UserRes[]>([TEXT_CHANNEL_MESSAGES_CACHE_KEY + ":users", data[0]], (oldUsers) => oldUsers ? [...oldUsers, data[1]] : [data[1]])
+  },
+})
 
 
 
