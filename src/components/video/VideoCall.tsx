@@ -1,4 +1,4 @@
-import { Button, Grid } from '@fluentui/react-northstar'
+import { Button, Grid, Flex } from '@fluentui/react-northstar'
 import React, { useEffect, useRef, useState, useContext } from 'react'
 import { useRefArrayCallback } from '../../utils/useRefCallback';
 import { AuthUserContext } from '../app/App';
@@ -140,11 +140,13 @@ export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
 
 
     return (
-        <Grid>
-            <div style={{ position: "relative" }}>
+        <Flex styles={{ justifyContent: "center", alignContent: "center", width: "100%" }}>
+            {/* <div style={{ position: "relative" }}>
                 <video ref={videoRef} onCanPlay={canPlay} id="player" autoPlay playsInline muted width="426" height="240" />
                 <p style={{ position: "absolute", color: 'green', top: 10, left: 10 }}>{`${authcontext?.selfState.user?.first_name || ""} ${authcontext?.selfState.user?.last_name || ""}`}</p>
-            </div>
+            </div> */}
+
+            <VideoPanel videoRef={videoRef}></VideoPanel>
 
             {callMembers.map((member) =>
             (
@@ -153,6 +155,6 @@ export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
                 </>)
             )}
             <p>{callMessage}</p>
-        </Grid>
+        </Flex>
     )
 }

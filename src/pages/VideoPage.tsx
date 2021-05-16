@@ -1,7 +1,7 @@
-import { MenuButton, Button, Flex, Menu, MenuItemProps, MenuShorthandKinds, ShorthandCollection, Chat, Text, Label } from '@fluentui/react-northstar'
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import { MenuButton, Button, Flex, Menu, MenuItemProps, MenuShorthandKinds, ShorthandCollection, Chat, Text, Label, Input } from '@fluentui/react-northstar'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useGetVideoChannelQuery } from '../api/videoQueries'
-import { useGetTextChannelQuery } from '../api/messageQueries'
+import { useGetTextChannelQuery, useNewTextChannelQuery } from '../api/messageQueries'
 import { VideoCall } from '../components/video/VideoCall'
 import { CancelIcon, MessageChannelIcon, VertMenuIcon, VideoChannelIcon } from '../style/icons'
 import { gsaTheme } from '../style/theme'
@@ -11,7 +11,7 @@ import { SocketContext } from '../components/app/SocketProvider'
 import { ChatWindow } from '../components/chat/ChatWindow'
 import { AuthUserContext } from '../components/app/App'
 import { colors } from '../style/colors'
-
+import { VideoMenu } from '../components/video/VideoMenu'
 
 
 
@@ -21,14 +21,32 @@ interface Props {
 }
 
 export const VideoPage: React.FC<Props> = ({ children }) => {
-    const { data: vidChanData, error, isFetching } = useGetVideoChannelQuery();
     const { data: textChanData, error: textChanError, isFetching: textChanIsFetching } = useGetTextChannelQuery();
-    // const { data: textChanData, error: textChanError, isFetching: textChanIsFetching } = useGetTextChannelQuery();
     const [selectedRoom, setSelectedRoom] = useState<undefined | String>(undefined)
     const socketContext = useContext(SocketContext)
     const authContext = useContext(AuthUserContext);
     const [selectedTextChan, setSelectedTextChan] = useState<[number, String] | undefined>(undefined)
     const [unseenCounter, setUnseenCounter] = useState<UnseenCounter>([])
+    const [managing, setManaging] = useState(false)
+
+
+
+    const newTextRef = useRef<HTMLInputElement | null>(null)
+    const { mutate: mutateTextChan, } = useNewTextChannelQuery();
+    const submitNewTextChan = () => {
+        if (newTextRef?.current?.value) {
+            mutateTextChan({
+                channel_name: newTextRef?.current?.value
+            })
+            newTextRef.current.value = ""
+        }
+    }
+    // const { mutate } = useNewMessageQuery();
+
+
+
+
+
     const divider = (id: number) => ({
         key: 'divider' + id,
         kind: 'divider',
@@ -37,25 +55,27 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
     const textChanMenu: ShorthandCollection<MenuItemProps, MenuShorthandKinds> = useMemo(() => [
         {
             key: 'heading1',
-            content: "Text Channels",
+            content: (
+                <Text>Text Rooms</Text>),
             kind: "divider",
 
         },
         divider(1),
     ], [])
 
-    const vidChanMenu: ShorthandCollection<MenuItemProps, MenuShorthandKinds> = useMemo(() => [
-        {
-            key: 'heading2',
-            content: "Video Rooms",
-            kind: "divider",
 
-        },
-        divider(2),
-    ], [])
+    // const addChannel: ShorthandCollection<MenuItemProps, MenuShorthandKinds> = [
+    //     {
+    //         key: "add-vid",
+    //         content: 
+    //     }
+    // ]
+
+
+
+
 
     const [textMenuItems, setTextMenuItems] = useState(textChanMenu)
-    const [vidMenuItems, setVidMenuItems] = useState(vidChanMenu)
 
     const setRoom = useMemo(() => (room: String) => {
         socketContext?.socket?.current?.joinVidChan(room, (action) => {
@@ -90,24 +110,6 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
     }, [textChanData, unseenCounter, authContext?.selfState.user, textChanMenu])
 
 
-    useEffect(() => {
-        if (vidChanData) {
-            setVidMenuItems([
-                ...vidChanMenu,
-                ...vidChanData.map((channel) => ({
-                    key: "vidChan:" + channel.video_channel_id,
-                    icon: <VideoChannelIcon />,
-                    content: channel.channel_name,
-                    action: () => {
-                        setRoom(channel.channel_name)
-                    },
-                    children: makeAction,
-                }))
-            ])
-        }
-    }, [setRoom, vidChanData, vidChanMenu])
-
-
 
 
     useEffect(() => {
@@ -139,27 +141,34 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
                 <Flex style={{ width: '16rem', position: 'relative', top: 0, left: 0, height: '100vh', flexDirection: "column" }}>
                     <Flex styles={{ width: "100%", padding: "1rem 0.5rem", backgroundColor: colors.grey["700"], justifyContent: "space-between", alignItems: "center" }}>
                         <Text color={"white"}>Welcome {authContext?.selfState.user?.role_id}</Text>
-                        {authContext?.selfState.user?.role_id === 2 ? <Button primary styles={{ justifySelf: "flex-end" }}>Manage</Button> : ''}
+                        {authContext?.selfState.user?.role_id !== 1 ? <Button primary={!managing} styles={{ justifySelf: "flex-end" }} onClick={() => setManaging(!managing)}>{managing ? "Complete" : "Manage"}</Button> : ''}
                     </Flex>
-                    <Menu
-                        styles={{ height: '50vh', width: '100%', backgroundColor: gsaTheme.siteVariables.colors.grey['50'] }}
-                        items={textMenuItems}
-                        pointing
-                        vertical
-                    />
-                    <Menu
-                        styles={{ height: '50vh', width: '100%', backgroundColor: gsaTheme.siteVariables.colors.grey['50'] }}
-                        items={vidMenuItems}
-                        pointing
-                        vertical
-                    />
-
+                    <Flex styles={{ flexDirection: "column", height: "45vh", backgroundColor: gsaTheme.siteVariables.colors.grey['50'] }}>
+                        <Menu
+                            styles={{ width: '100%', backgroundColor: gsaTheme.siteVariables.colors.grey['50'] }}
+                            items={textMenuItems}
+                            pointing
+                            vertical
+                        />
+                        {managing ? <Flex styles={{ flexDirection: "column" }}>
+                            <Input ref={newTextRef}></Input>
+                            <Button onClick={submitNewTextChan}>Add Text Room</Button>
+                        </Flex> : ""}
+                    </Flex>
+                    <Flex styles={{ flexDirection: "column", height: "50vh", backgroundColor: gsaTheme.siteVariables.colors.grey['50'] }}>
+                        <VideoMenu setRoom={setRoom} />
+                        {managing ?
+                            <Flex styles={{ flexDirection: "column" }}>
+                                <Input></Input>
+                                <Button>Add Video Room</Button>
+                            </Flex> : ""}
+                    </Flex>
                 </Flex>
-                {selectedTextChan !== undefined ? (
-                    <ChatWindow selectedTextChan={selectedTextChan} setSelectedTextChan={setSelectedTextChan} />
-                ) : ""}
 
-                {/* <VideoCall selectedRoom={selectedRoom}></VideoCall> */}
+                {selectedTextChan !== undefined ?
+                    (<ChatWindow selectedTextChan={selectedTextChan} setSelectedTextChan={setSelectedTextChan} />) : ""}
+
+                <VideoCall selectedRoom={selectedRoom}></VideoCall>
             </Flex>
         </>
     )

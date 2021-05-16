@@ -1,8 +1,12 @@
 import { useMutation, useQuery } from 'react-query';
 import { getFetch, postFetch } from './defaults';
 import { queryClient } from '../components/app/App';
+import { VideoChannelRes, VIDEO_CHANNEL_CACHE_KEY } from './videoQueries';
 
 const NEW_MESSAGE_PATH = '/message/new'
+
+const NEW_VID_CHAN_PATH = '/vidchan/new'
+const NEW_TEXT_CHAN_PATH = '/textchan/new'
 
 const TEXT_CHANNEL_CACHE_KEY = 'text_channel';
 export const TEXT_CHANNEL_MESSAGES_CACHE_KEY = 'text_channel_messages';
@@ -27,6 +31,46 @@ export interface MessageInput {
   contents: String,
   text_channel_id: number
 }
+
+
+export interface NewChannelInput {
+  channel_name: String
+}
+
+
+//  channelType: typeof NEW_VID_CHAN_PATH | typeof NEW_TEXT_CHAN_PATH
+const postChannel = (channelType: typeof NEW_VID_CHAN_PATH | typeof NEW_TEXT_CHAN_PATH) => async (channelInput: NewChannelInput) => postFetch<NewChannelInput>(channelType, channelInput).then((res) => res.json())
+  .catch((e) => {
+    console.error('POST REQUEST ERROR', e);
+    throw e;
+  });
+
+
+
+export const useNewVidChannelQuery = () =>
+  useMutation<VideoChannelRes, Error, NewChannelInput, any>(postChannel(NEW_VID_CHAN_PATH), {
+    onSuccess: (data) => {
+      queryClient.setQueryData<VideoChannelRes[]>(VIDEO_CHANNEL_CACHE_KEY,
+        (old_chans) => old_chans ? [...old_chans, data] : [data]
+      )
+    },
+  });
+
+export const useNewTextChannelQuery = () =>
+  useMutation<TextChannelRes, Error, NewChannelInput, any>(postChannel(NEW_TEXT_CHAN_PATH), {
+    onSuccess: (data) => {
+      queryClient.setQueryData<TextChannelRes[]>(TEXT_CHANNEL_CACHE_KEY,
+        (old_chans) => old_chans ? [...old_chans, data] : [data])
+    },
+  });
+
+
+
+
+
+
+
+
 
 const getTextChannels = async () =>
   getFetch('/textchan')
@@ -64,15 +108,11 @@ const postMessage = async (messageInput: MessageInput) => postFetch<MessageInput
   .catch((e) => {
     console.error('POST REQUEST ERROR', e);
     throw e;
-  });;
-
-
+  });
 
 
 export const useGetTextChannelQuery = () =>
   useQuery<TextChannelRes[]>(TEXT_CHANNEL_CACHE_KEY, getTextChannels);
-
-
 
 export const useGetTextChannelMessagesQuery = (chan_id: number) =>
   useQuery<MessageRes[]>([TEXT_CHANNEL_MESSAGES_CACHE_KEY, chan_id], () => getTextChannelMessages(chan_id));

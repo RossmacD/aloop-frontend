@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from 'react-query';
 import { getFetch, postFetch } from './defaults';
 
-const VIDEO_CHANNEL_CACHE_KEY = 'video_channel';
+export const VIDEO_CHANNEL_CACHE_KEY = 'video_channel';
 
 export interface VideoChannelRes {
   video_channel_id: number;

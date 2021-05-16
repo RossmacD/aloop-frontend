@@ -1,16 +1,16 @@
-import React from 'react'
-
+import React, { RefObject } from 'react'
+import { Flex } from '@fluentui/react-northstar'
 interface Props {
-    videoRef: (element: HTMLVideoElement | null) => HTMLVideoElement | null,
+    videoRef: ((element: HTMLVideoElement | null) => HTMLVideoElement | null) | RefObject<HTMLVideoElement>,
     canPlay?: () => void,
     self?: number
 }
-
+// 426 240
 export const VideoPanel: React.FC<Props> = ({ children, videoRef, canPlay, self }) => {
     return (
-        <div style={{ position: "relative" }}>
-            <video ref={videoRef} playsInline autoPlay width="426" height="240"></video>
-            <p style={{ position: "absolute", color: 'white', top: 10, left: 10 }}>Caller ID: {self || 'caller'}</p>
-        </div>
+        <Flex style={{ position: "relative", flexDirection: "column", height: "fit-content", margin: "1rem" }}>
+            <video ref={videoRef} playsInline autoPlay width="639" height="360" style={{ clipPath: 'circle()' }}></video>
+            <p style={{ color: 'white', position: "absolute", bottom: 0, width: "100%", textAlign: "center" }}>Caller ID: {self || 'caller'}</p>
+        </Flex>
     )
 }
