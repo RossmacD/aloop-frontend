@@ -6,6 +6,16 @@ import { getFetch, postFetch } from './defaults';
 const SELF_CACHE_KEY = 'self';
 const USER_CACHE_KEY = 'users';
 
+export interface UserRes {
+  user_id: number;
+  email: string;
+  pass: string;
+  first_name: string;
+  last_name: string;
+  role_id: number,
+  created_at: string
+}
+
 export interface RegisterInput {
   email: string;
   pass: string;

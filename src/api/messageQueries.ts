@@ -2,6 +2,7 @@ import { useMutation, useQuery } from 'react-query';
 import { getFetch, postFetch } from './defaults';
 import { queryClient } from '../components/app/App';
 import { VideoChannelRes, VIDEO_CHANNEL_CACHE_KEY } from './videoQueries';
+import { UserRes } from './authQueries';
 
 const NEW_MESSAGE_PATH = '/message/new'
 
@@ -88,6 +89,22 @@ const getTextChannels = async () =>
     });
 
 
+const getTextChannelUsers = async (chan_id: number) =>
+  getFetch(`/textchan/${chan_id}`)
+    .then((res) => {
+      console.log(res);
+      if (res.ok) {
+        return res.json();
+      } else {
+        throw new Error('Authentication Error');;
+      }
+    })
+    .catch((e) => {
+      console.error('POST REQUEST ERROR', e);
+      throw e;
+    });
+
+
 const getTextChannelMessages = async (chan_id: number) =>
   getFetch(`/messages/chan/${chan_id}`)
     .then((res) => {
@@ -116,6 +133,12 @@ export const useGetTextChannelQuery = () =>
 
 export const useGetTextChannelMessagesQuery = (chan_id: number) =>
   useQuery<MessageRes[]>([TEXT_CHANNEL_MESSAGES_CACHE_KEY, chan_id], () => getTextChannelMessages(chan_id));
+
+export const useGetTextChannelUsersQuery = (chan_id: number) =>
+  useQuery<UserRes[]>([TEXT_CHANNEL_MESSAGES_CACHE_KEY + ":users", chan_id], () => getTextChannelUsers(chan_id));
+
+
+
 
 export const useNewMessageQuery = () =>
   useMutation<MessageRes, Error, MessageInput, any>(postMessage, {

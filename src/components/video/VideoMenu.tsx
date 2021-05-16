@@ -50,7 +50,7 @@ export const VideoMenu: React.FC<Props> = ({ children, setRoom }) => {
 
     return (
         <Menu
-            styles={{ height: '50vh', width: '100%', backgroundColor: colors.grey['50'] }}
+            styles={{ width: '100%', backgroundColor: colors.grey['50'] }}
             items={vidMenuItems}
             pointing
             vertical

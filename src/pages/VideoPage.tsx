@@ -1,7 +1,7 @@
 import { MenuButton, Button, Flex, Menu, MenuItemProps, MenuShorthandKinds, ShorthandCollection, Chat, Text, Label, Input } from '@fluentui/react-northstar'
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useGetVideoChannelQuery } from '../api/videoQueries'
-import { useGetTextChannelQuery, useNewTextChannelQuery } from '../api/messageQueries'
+import { useGetTextChannelQuery, useNewTextChannelQuery, useNewVidChannelQuery } from '../api/messageQueries'
 import { VideoCall } from '../components/video/VideoCall'
 import { CancelIcon, MessageChannelIcon, VertMenuIcon, VideoChannelIcon } from '../style/icons'
 import { gsaTheme } from '../style/theme'
@@ -12,6 +12,7 @@ import { ChatWindow } from '../components/chat/ChatWindow'
 import { AuthUserContext } from '../components/app/App'
 import { colors } from '../style/colors'
 import { VideoMenu } from '../components/video/VideoMenu'
+import { ManageWindow } from '../components/video/ManageWindow'
 
 
 
@@ -41,8 +42,18 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
             newTextRef.current.value = ""
         }
     }
-    // const { mutate } = useNewMessageQuery();
 
+
+    const newVidRef = useRef<HTMLInputElement | null>(null)
+    const { mutate: mutateVidChan, } = useNewVidChannelQuery();
+    const submitNewVidChan = () => {
+        if (newVidRef?.current?.value) {
+            mutateVidChan({
+                channel_name: newVidRef?.current?.value
+            })
+            newVidRef.current.value = ""
+        }
+    }
 
 
 
@@ -139,7 +150,7 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
         <>
             <Flex style={{ width: '100vw', height: '100vh', backgroundColor: colors.grey["600"] }}>
                 <Flex style={{ width: '16rem', position: 'relative', top: 0, left: 0, height: '100vh', flexDirection: "column" }}>
-                    <Flex styles={{ width: "100%", padding: "1rem 0.5rem", backgroundColor: colors.grey["700"], justifyContent: "space-between", alignItems: "center" }}>
+                    <Flex styles={{ width: "100%", height: "10vh", backgroundColor: colors.grey["700"], justifyContent: "space-between", alignItems: "center" }}>
                         <Text color={"white"}>Welcome {authContext?.selfState.user?.role_id}</Text>
                         {authContext?.selfState.user?.role_id !== 1 ? <Button primary={!managing} styles={{ justifySelf: "flex-end" }} onClick={() => setManaging(!managing)}>{managing ? "Complete" : "Manage"}</Button> : ''}
                     </Flex>
@@ -150,23 +161,24 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
                             pointing
                             vertical
                         />
-                        {managing ? <Flex styles={{ flexDirection: "column" }}>
-                            <Input ref={newTextRef}></Input>
+                        {managing ? <Flex styles={{ flexDirection: "column", marginTop: '0.5rem' }}>
+                            <Input ref={newTextRef} placeholder="New Channel name..."></Input>
                             <Button onClick={submitNewTextChan}>Add Text Room</Button>
                         </Flex> : ""}
                     </Flex>
-                    <Flex styles={{ flexDirection: "column", height: "50vh", backgroundColor: gsaTheme.siteVariables.colors.grey['50'] }}>
+                    <Flex styles={{ flexDirection: "column", height: "45vh", backgroundColor: gsaTheme.siteVariables.colors.grey['50'] }}>
                         <VideoMenu setRoom={setRoom} />
                         {managing ?
-                            <Flex styles={{ flexDirection: "column" }}>
-                                <Input></Input>
-                                <Button>Add Video Room</Button>
+                            <Flex styles={{ flexDirection: "column", marginTop: '0.5rem' }}>
+                                <Input ref={newVidRef} placeholder="New Channel name..."></Input>
+                                <Button onClick={submitNewVidChan}>Add Video Room</Button>
                             </Flex> : ""}
                     </Flex>
                 </Flex>
 
-                {selectedTextChan !== undefined ?
-                    (<ChatWindow selectedTextChan={selectedTextChan} setSelectedTextChan={setSelectedTextChan} />) : ""}
+                {(selectedTextChan !== undefined && !managing) ?
+                    (<ChatWindow selectedTextChan={selectedTextChan} setSelectedTextChan={setSelectedTextChan} />) : managing && selectedTextChan ?
+                        <ManageWindow selectedTextChan={selectedTextChan} setSelectedTextChan={setSelectedTextChan}></ManageWindow> : ""}
 
                 <VideoCall selectedRoom={selectedRoom}></VideoCall>
             </Flex>
