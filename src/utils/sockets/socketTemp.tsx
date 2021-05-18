@@ -9,7 +9,20 @@ const CANDIDATE_ACTION = "CANDIDATE"
 const ANSWER_ACTION = "ANSWER"
 type Actions = typeof CANDIDATE_ACTION | typeof OFFER_ACTION | typeof ANSWER_ACTION | typeof HANDLE_CONNECTION_ACTION
 const MESSAGE_ACTION = "NEW_MESSAGE"
-
+const iceConfig = {
+    iceServers: [{
+        urls: "stun:stun.l.google.com:19302"
+    },
+    {
+        urls: ["stun:dropin.rossmacd.com:5349"]
+    },
+    {
+        urls: "turn:dropin.rossmacd.com:5349",
+        username: "sneakman",
+        credential: "sneakpass"
+    }
+    ]
+}
 interface OneToOneData {
     protocol: '1:1',
     data: any,
@@ -151,7 +164,9 @@ export class RTCSocket {
     addPeer = async (requester_id: number, room: String,) => {
         console.log('CONNECTING PEERS');
         // Create the local connection and its event listeners
-        let connection = new RTCPeerConnection();
+        let connection = new RTCPeerConnection(
+            iceConfig
+        );
         connection.onicecandidate = (iceEvent) => {
             // Send the ice candidate
             if (iceEvent.candidate) {
@@ -161,7 +176,7 @@ export class RTCSocket {
         this.connections.set(requester_id, connection);
         this.updateTracks(requester_id)
         this.setCallMembers ? this.setCallMembers(members => [...Array.from(new Set([...members, requester_id]))]) : console.error("Didnt set call mebers")
-        connection = this.connections.get(requester_id) || new RTCPeerConnection();
+        connection = this.connections.get(requester_id) || new RTCPeerConnection(iceConfig);
 
         // Send an offer to the peer
         await connection.createOffer({ offerToReceiveVideo: true })
@@ -201,7 +216,7 @@ export class RTCSocket {
             }).catch(err => console.error(err));
         } else {
             console.error("No connection>? Retrying")
-            this.connections.set(requester, new RTCPeerConnection())
+            this.connections.set(requester, new RTCPeerConnection(iceConfig))
             this.updateTracks(requester)
             this.setCallMembers ? this.setCallMembers(members => [...Array.from(new Set([...members, requester]))]) : console.error("Didnt set call mebers")
             this.processOffer(requester, room, remoteOffer)

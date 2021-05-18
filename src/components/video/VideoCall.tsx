@@ -1,10 +1,12 @@
 import { Button, Grid, Flex } from '@fluentui/react-northstar'
-import React, { useEffect, useRef, useState, useContext } from 'react'
+import React, { useEffect, useRef, useState, useContext, RefObject, useMemo } from 'react'
 import { useRefArrayCallback } from '../../utils/useRefCallback';
 import { AuthUserContext } from '../app/App';
 import { SocketContext } from '../app/SocketProvider';
 import { VideoPanel } from './VideoPanel';
 // import { makeConnection, localConnection, client } from '../../utils/sockets/socket';!!!
+// const useDimensions = require("react-use-dimensions");
+import useDimensions from "react-cool-dimensions";
 
 interface Props {
     selectedRoom: String | undefined
@@ -38,6 +40,44 @@ export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
 
 
     const socketContext = useContext(SocketContext)
+    // const panelRef = useRef(null)
+    const [panelSize, setPanelSize] = useState<[number, number]>([0, 0])
+    // useEffect(() => {
+    //     console.log("Changin size", width, height)
+
+    // }, [height, panelRef, callMembers])
+
+    // console.log(useDimensions.default())
+    // const [panelRef, { width, height }] = useDimensions.default();
+    const { observe, width, height } = useDimensions({
+        // onResize: ({ width, height, }) => {
+        //     updateSizes(width, height, callMembers.length);
+        // },
+    });
+
+    const updateSizes = (panW: number, panH: number, users: number) => {
+        const margin = 50
+        // users = users++
+        console.log(callMembers.length, "memebers")
+        if (panW > panH) {
+            const newHeight = users > 0 ? Math.floor(panH / (users + 1)) : panH
+            setPanelSize([newHeight - margin, newHeight - margin])
+        } else {
+            const newHeight = users > 0 ? Math.floor(panW / (users + 1)) : panW
+
+            setPanelSize([newHeight - margin, newHeight - margin])
+        }
+    }
+
+
+
+    useEffect(() => {
+        updateSizes(width, height, callMembers.length);
+    }, [callMembers, height, width])
+
+
+
+
 
 
     const joinRoom = (room: String) => {
@@ -56,7 +96,7 @@ export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
 
     useEffect(() => {
         // console.log(navigator.mediaDevices.getUserMedia({ audio: false, video: true }).then)
-        if (!navigator.mediaDevices?.getUserMedia({ audio: false, video: true })
+        if (!navigator.mediaDevices?.getUserMedia({ audio: true, video: { aspectRatio: 1 } })
             .then((stream) => {
                 // console.log("Stream")
                 if (videoRef?.current) {
@@ -76,7 +116,7 @@ export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
         } else {
             // console.log("noVideo")
         };
-    }, [videoRef])
+    }, [videoRef.current])
 
     const canPlay = () => {
         if (videoRef?.current) { videoRef.current.play() }
@@ -140,21 +180,22 @@ export const VideoCall: React.FC<Props> = ({ children, selectedRoom }) => {
 
 
     return (
-        <Flex styles={{ justifyContent: "center", alignContent: "center", width: "100%" }}>
+        <div style={{ width: "100%", display: 'flex', margin: 0, alignItems: "center", justifyContent: "center" }} ref={observe}>
+            {/* { width + ' ' + height} */}
             {/* <div style={{ position: "relative" }}>
                 <video ref={videoRef} onCanPlay={canPlay} id="player" autoPlay playsInline muted width="426" height="240" />
                 <p style={{ position: "absolute", color: 'green', top: 10, left: 10 }}>{`${authcontext?.selfState.user?.first_name || ""} ${authcontext?.selfState.user?.last_name || ""}`}</p>
             </div> */}
 
-            <VideoPanel videoRef={videoRef}></VideoPanel>
+            <VideoPanel mute videoRef={videoRef} size={panelSize}></VideoPanel>
 
             {callMembers.map((member) =>
             (
                 <>
-                    <VideoPanel videoRef={setIncomingVidRef(member)} key={member} />
+                    <VideoPanel videoRef={setIncomingVidRef(member)} key={member} size={panelSize} />
                 </>)
             )}
             <p>{callMessage}</p>
-        </Flex>
+        </div>
     )
 }

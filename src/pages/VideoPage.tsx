@@ -32,6 +32,7 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
 
 
 
+
     const newTextRef = useRef<HTMLInputElement | null>(null)
     const { mutate: mutateTextChan, } = useNewTextChannelQuery();
     const submitNewTextChan = () => {
