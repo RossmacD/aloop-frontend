@@ -1,4 +1,4 @@
-import { CgSearch, CgClose, CgEye, CgMathPlus, CgUserList, CgComment, CgArrowRightO, CgUserAdd, CgMoreVertical, CgHashtag, CgMediaLive } from 'react-icons/cg';
+import { CgSearch, CgClose, CgEye, CgMathPlus, CgUserList, CgComment, CgArrowRightO, CgUserAdd, CgMoreVertical, CgHashtag, CgMediaLive, CgUser } from 'react-icons/cg';
 import { GenIcon, IconType } from 'react-icons/lib';
 
 // Icon packs can easily be switched out here
@@ -13,6 +13,8 @@ export const VertMenuIcon = CgMoreVertical;
 export const AddUserIcon = CgUserAdd;
 export const MessageChannelIcon = CgHashtag;
 export const VideoChannelIcon = CgMediaLive
+export const AddedUserIcon = CgUserAdd;
+export const RemovedUserIcon = CgUser;
 
 
 

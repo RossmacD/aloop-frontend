@@ -6,7 +6,7 @@ import { VideoChannelIcon } from '../../style/icons';
 import { makeAction } from '../../utils/MakeAction';
 
 interface Props {
-    setRoom: (room: String) => void
+    setRoom: (room: String, id: number) => void
 }
 
 export const VideoMenu: React.FC<Props> = ({ children, setRoom }) => {
@@ -39,7 +39,7 @@ export const VideoMenu: React.FC<Props> = ({ children, setRoom }) => {
                     icon: <VideoChannelIcon />,
                     content: channel.channel_name,
                     action: () => {
-                        setRoom(channel.channel_name)
+                        setRoom(channel.channel_name, channel.video_channel_id)
                     },
                     children: makeAction,
                 }))

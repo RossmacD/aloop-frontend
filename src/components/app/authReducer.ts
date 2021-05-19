@@ -22,7 +22,7 @@ interface LoginAction {
 
 interface LogoutAction {
   type: typeof LOGOUT;
-  payload: { user: AuthState['user'] };
+  // payload: { user: AuthState['user'] };
 }
 
 type ReducerAction = LogoutAction | LoginAction;

@@ -13,8 +13,9 @@ import { AuthUserContext } from '../components/app/App'
 import { colors } from '../style/colors'
 import { VideoMenu } from '../components/video/VideoMenu'
 import { ManageWindow } from '../components/video/ManageWindow'
-
-
+import { VideoWindow } from '../components/video/VideoWindow'
+import { getFetch } from '../api/defaults'
+import { useHistory } from 'react-router-dom'
 
 export interface UnseenCounter { [key: number]: number }
 interface Props {
@@ -23,7 +24,7 @@ interface Props {
 
 export const VideoPage: React.FC<Props> = ({ children }) => {
     const { data: textChanData, error: textChanError, isFetching: textChanIsFetching } = useGetTextChannelQuery();
-    const [selectedRoom, setSelectedRoom] = useState<undefined | String>(undefined)
+    const [selectedRoom, setSelectedRoom] = useState<undefined | [number, String]>(undefined)
     const socketContext = useContext(SocketContext)
     const authContext = useContext(AuthUserContext);
     const [selectedTextChan, setSelectedTextChan] = useState<[number, String] | undefined>(undefined)
@@ -85,16 +86,17 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
 
 
 
-
+    const history = useHistory()
 
     const [textMenuItems, setTextMenuItems] = useState(textChanMenu)
 
-    const setRoom = useMemo(() => (room: String) => {
+    const setRoom = useMemo(() => (room: String, id: number) => {
+        console.log("Setting room")
         socketContext?.socket?.current?.joinVidChan(room, (action) => {
             console.log("Selecting room:", `${room}`)
-            setSelectedRoom(`#?${room}`)
         })
-    }, [socketContext?.socket])
+        setSelectedRoom([id, `#?${room}`])
+    }, [socketContext?.socket, setSelectedRoom, socketContext.socketReady])
 
     useEffect(() => {
         if (textChanData && authContext?.selfState.user) {
@@ -152,8 +154,8 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
             <Flex style={{ width: '100vw', height: '100vh', backgroundColor: colors.grey["600"] }}>
                 <Flex style={{ width: '16rem', position: 'relative', top: 0, left: 0, height: '100vh', flexDirection: "column" }}>
                     <Flex styles={{ width: "100%", height: "10vh", backgroundColor: colors.grey["700"], justifyContent: "space-between", alignItems: "center" }}>
-                        <Text color={"white"}>Welcome {authContext?.selfState.user?.role_id}</Text>
-                        {authContext?.selfState.user?.role_id !== 1 ? <Button primary={!managing} styles={{ justifySelf: "flex-end" }} onClick={() => setManaging(!managing)}>{managing ? "Complete" : "Manage"}</Button> : ''}
+                        <Text color={"white"}>Drop-In</Text>
+                        {(authContext?.selfState.user?.role_id || 0) > 1 ? <Button primary={!managing} styles={{ justifySelf: "flex-end" }} onClick={() => setManaging(!managing)}>{managing ? "Complete" : "Manage"}</Button> : ''}
                     </Flex>
                     <Flex styles={{ flexDirection: "column", height: "45vh", backgroundColor: gsaTheme.siteVariables.colors.grey['50'] }}>
                         <Menu
@@ -178,11 +180,16 @@ export const VideoPage: React.FC<Props> = ({ children }) => {
                 </Flex>
 
                 {(selectedTextChan !== undefined && !managing) ?
-                    (<ChatWindow selectedTextChan={selectedTextChan} setSelectedTextChan={setSelectedTextChan} />) : managing && selectedTextChan ?
-                        <ManageWindow selectedTextChan={selectedTextChan} setSelectedTextChan={setSelectedTextChan}></ManageWindow> : ""}
+                    (<ChatWindow selectedTextChan={selectedTextChan} setSelectedTextChan={setSelectedTextChan} />) : ""}
 
-                <VideoCall selectedRoom={selectedRoom}></VideoCall>
+                {managing && selectedTextChan ? <ManageWindow selectedTextChan={selectedTextChan} setSelectedTextChan={setSelectedTextChan}></ManageWindow> : managing && selectedRoom ? <VideoWindow selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom}></VideoWindow> : ""}
+
+
+                <VideoCall selectedRoom={selectedRoom} setSelectedRoom={setSelectedRoom}></VideoCall>
+                <Button onClick={() => { getFetch("/logout").finally(() => authContext?.dispatch({ type: "LOGOUT" })); history.push("/") }} inverted styles={{ position: "absolute", top: "1rem", right: "1rem" }}>Logout</Button>
             </Flex>
         </>
     )
 }
+// managing && selectedTextChan ?
+//                         <ManageWindow selectedTextChan={selectedTextChan} setSelectedTextChan={setSelectedTextChan}></ManageWindow> :

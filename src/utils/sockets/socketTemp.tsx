@@ -49,10 +49,14 @@ export class RTCSocket {
     updateTracks = (id: number) => { }
     setCallMembers?: React.Dispatch<React.SetStateAction<number[]>>;
     setUnseenCounter?: React.Dispatch<React.SetStateAction<UnseenCounter>>
+    handleDisconnect?: (id: number) => void
 
     changeSetUnseetCounter = (counterFunc: React.Dispatch<React.SetStateAction<UnseenCounter>> | undefined) => {
         this.setUnseenCounter = counterFunc
     }
+    muteCam: () => boolean
+    muteMic: () => boolean
+
 
     constructor(client_id: number) {
         this.ws = new WebSocket(`${BASE_SOCKET_URL}/signalling/`);
@@ -60,9 +64,13 @@ export class RTCSocket {
         this.connections = new Map<number, RTCPeerConnection>();
         this.client_id = client_id
         this.actionHandlers = {}
+        this.muteCam = () => false
+        this.muteMic = () => false
     }
 
+    clearConnections = () => {
 
+    }
 
 
     setSocketHandlers = () => {
@@ -128,6 +136,12 @@ export class RTCSocket {
                         // DOing nothing????????????
                         queryClient.invalidateQueries([TEXT_CHANNEL_MESSAGES_CACHE_KEY, json.message.text_channel_id])
                         break
+                    case "INVALIDATE":
+                        queryClient.invalidateQueries(json.query_key)
+                        break
+                    case "ROOM_JOIN":
+                        // userJoinedRoom json.room, joson.user_id
+                        break
                     default:
                         for (const handler in this.actionHandlers) {
                             console.log("Attempting handler", handler)
@@ -146,10 +160,11 @@ export class RTCSocket {
         return this;
     };
 
-    makeConnection = (room: String, setCallMembers: React.Dispatch<React.SetStateAction<number[]>>): boolean => {
+    makeConnection = (room: String, setCallMembers: React.Dispatch<React.SetStateAction<number[]>>, handleDisconnect: (id: number) => void): boolean => {
         if (this.ws.readyState === WebSocket.OPEN) {
             console.log('Connected -> sending negotiations',);
             this.setCallMembers = setCallMembers
+            this.handleDisconnect = handleDisconnect
             this.sendOneToAllNegotiation(HANDLE_CONNECTION_ACTION, room, this.client_id)
             return true;
         } else {
@@ -173,11 +188,17 @@ export class RTCSocket {
                 this.sendOneToOneNegotiation(CANDIDATE_ACTION, room, requester_id, iceEvent.candidate);
             }
         };
+
+
         this.connections.set(requester_id, connection);
         this.updateTracks(requester_id)
         this.setCallMembers ? this.setCallMembers(members => [...Array.from(new Set([...members, requester_id]))]) : console.error("Didnt set call mebers")
         connection = this.connections.get(requester_id) || new RTCPeerConnection(iceConfig);
-
+        connection.onconnectionstatechange = () => {
+            if (connection.iceConnectionState === 'disconnected' && this.handleDisconnect) {
+                this.handleDisconnect(requester_id)
+            }
+        }
         // Send an offer to the peer
         await connection.createOffer({ offerToReceiveVideo: true })
             .then((offer) => {
@@ -216,7 +237,15 @@ export class RTCSocket {
             }).catch(err => console.error(err));
         } else {
             console.error("No connection>? Retrying")
-            this.connections.set(requester, new RTCPeerConnection(iceConfig))
+
+            const newConnection = new RTCPeerConnection(iceConfig)
+            newConnection.onconnectionstatechange = () => {
+                if (newConnection.iceConnectionState === 'disconnected' && this.handleDisconnect) {
+                    this.handleDisconnect(requester)
+                }
+            }
+            this.connections.set(requester, newConnection)
+
             this.updateTracks(requester)
             this.setCallMembers ? this.setCallMembers(members => [...Array.from(new Set([...members, requester]))]) : console.error("Didnt set call mebers")
             this.processOffer(requester, room, remoteOffer)
@@ -285,7 +314,21 @@ export class RTCSocket {
                 }
             })
         }
+
+        this.muteCam = () => {
+            stream.getVideoTracks()[0].enabled = !(stream.getVideoTracks()[0].enabled);
+            return stream.getVideoTracks()[0].enabled
+        }
+
+        this.muteMic = () => {
+            stream.getAudioTracks()[0].enabled = !(stream.getAudioTracks()[0].enabled);
+            return stream.getAudioTracks()[0].enabled
+        }
     }
+
+    // muteCam = ()=>{
+
+    // }
 
     emptyTracks = (/*requester: number*/) => {
         // this.localConnection.ontrack = () => { }
